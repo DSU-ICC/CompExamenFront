@@ -1,8 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TextArea from '../ui/TextArea'
 
-const QuestionItem = ({ question, answer }) => {
+const QuestionItem = ({ question, answer, onChange }) => {
   const [textAnswer, setTextAnswer] = useState(answer)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    if (isMounted) {
+      onChange(textAnswer?.trim() || null)
+    }
+    setIsMounted(true)
+  }, [textAnswer])
 
   return (
     <li className='questions__item questions-item'>

@@ -1059,7 +1059,9 @@ main {
 }
 
 .examen-teacher__item--success .examen-teacher__item-link,
-.examen-teacher__item--failed .examen-teacher__item-link {
+.answers-check__student--success,
+.examen-teacher__item--failed .examen-teacher__item-link,
+.answers-check__student--failed {
     font-size: 48px;
 }
 
@@ -1070,19 +1072,26 @@ main {
 }
 
 .examen-teacher__item--success .examen-teacher__item-link,
+.answers-check__student--success,
 .result-item__score--success {
     background-color: #20ac7a;
 }
 
 .examen-teacher__item--failed .examen-teacher__item-link,
+.answers-check__student--failed,
 .result-item__score--failed {
     background-color: #dc4e67;
 }
 
 .examen-teacher__item--no-checking .examen-teacher__item-link,
-.answers-check__student--no-checking  {
-    background-color: #0500fe;
+.examen-teacher__item--success .examen-teacher__item-link,
+.examen-teacher__item--failed .examen-teacher__item-link {
     pointer-events: all;
+}
+
+.examen-teacher__item--no-checking .examen-teacher__item-link,
+.answers-check__student--no-checking {
+    background-color: #0500fe;
 }
 
 .answers-check__title {
@@ -1098,7 +1107,7 @@ main {
     padding-bottom: 72px;
 }
 
-.answers-check__student--no-checking {
+.answers-check__student {
     margin-left: auto;
     margin-top: 64px;
 }

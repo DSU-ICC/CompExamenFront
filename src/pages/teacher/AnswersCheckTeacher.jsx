@@ -7,6 +7,30 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import AnswerBlankService from '../../api/AnswerBlankService'
 
+const getStudentExamenStatusClass = (student) => {
+  if (student.answerBlank?.totalScore) {
+    if (student.answerBlank?.totalScore > 50) {
+      return 'answers-check__student--success'
+    } else {
+      return 'answers-check__student--failed'
+    }
+  } else if (student.answerBlank != null && student.answerBlank.endExamenDateTime != null) {
+    return 'answers-check__student--no-checking'
+  } else {
+    return ''
+  }
+}
+
+const getStudentNumber = (student) => {
+  const statusClass = getStudentExamenStatusClass(student)
+
+  if (statusClass == "answers-check__student--failed" || statusClass == "answers-check__student--success") {
+    return student.answerBlank.totalScore
+  } else {
+    return student.studentId
+  }
+}
+
 const AnswersCheckTeacher = () => {
   const [totalScore, setTotalScore] = useState(null)
   const [modalActive, setModalActive] = useState(false)
@@ -59,7 +83,7 @@ const AnswersCheckTeacher = () => {
               <span className="back-link__text">Назад</span>
           </Link>
           </div>
-          <div className='answers-check__student answers-check__student--no-checking'>{studentData.studentId}</div>
+          <div className={`answers-check__student ${getStudentExamenStatusClass(studentData)}`}>{getStudentNumber(studentData)}</div>
         </div>
         <div className="answers-check__body">
           <h1 className='answers-check__title title'>{studentData.answerBlank.examTicket.examen.discipline}</h1>
@@ -73,7 +97,7 @@ const AnswersCheckTeacher = () => {
           <div className='answers-check__bottom'>
             <div className='answers-check__score'>
               <p className='answers-check__score-label'>Выставить баллы</p>
-              <Input className='answers-check__score-input' onChange={(evt) => setTotalScore(parseInt(evt.target.value))} />
+              <Input className='answers-check__score-input' defaultValue={studentData.answerBlank.totalScore} onChange={(evt) => setTotalScore(parseInt(evt.target.value))} />
             </div>
             <Button className='answers-check__btn' onClick={() => totalScroreValidate()}>Закончить проверку</Button>
           </div>

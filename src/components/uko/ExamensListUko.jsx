@@ -3,8 +3,8 @@ import { isStartExamen } from '../../utils/date'
 
 
 const ExamensListUko = ({ examens }) => {
-  const examensActive = examens.filter(e => isStartExamen(new Date(e.examDate)))
-  const examensNotActive = examens.filter(e => !isStartExamen(new Date(e.examDate)))
+  const examensActive = examens.filter(e => isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
+  const examensNotActive = examens.filter(e => !isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
 
   return (
     <>

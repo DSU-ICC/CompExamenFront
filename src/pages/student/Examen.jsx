@@ -7,13 +7,15 @@ import { useFetching } from '../../hooks/useFetching'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AnswerBlankService from '../../api/AnswerBlankService'
 import { AuthContext } from '../../context'
+import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
 
 const Examen = () => {
-  const {showToast} = useContext(AuthContext)
-  
+  const { showToast } = useContext(AuthContext)
+  let autoSaveDate = new Date(localStorage.getItem("timeToAutoSaveInMinutes"))
+
   const [modalActive, setModalActive] = useState(false)
-  const [examenAnswers, setExamenAnswers] = useState(null)
+  const [examenAnswers, setExamenAnswers] = useState([])
   const [timeToEnd, setTimeToEnd] = useState(915)
 
   const startExamenData = useLocation()
@@ -49,6 +51,7 @@ const Examen = () => {
 
   const [endExamen, isEndLoading, endError] = useFetching(async (answerBlankId) => {
     const response = await AnswerBlankService.endExamenForStudent(answerBlankId)
+    localStorage.removeItem("timeToAutoSaveInMinutes")
 
     if (response.status == 200) {
       showToast("success", `Статус 200`, "Ответы сохранены!")
@@ -63,45 +66,49 @@ const Examen = () => {
     getAnswers(examenData.id)
   }, [])
 
-  const saveAnswers = (isEndExamen = false) => {
-    let questionItems = document.querySelectorAll(".questions-item")
-    let newAnswers = []
-    for (let i = 0; i < questionItems.length; i++) {
-      let numberQuestionBlock = questionItems[i].querySelector(".questions-item__number")
-      if (!numberQuestionBlock) {
-        showToast("error", "Ошибка при формировании списка ответов", `Не найден номер вопроса при парсинге ${i + 1}-го блока вопросов билета!`)
-        return;
-      }
-
-      let numberQuestion = parseInt(numberQuestionBlock.textContent.split("№")[1])
-      let question = examenData.examTicket.questions.find(q => q.number == numberQuestion)
-      if (!question) {
-        showToast("error", "Ошибка при формировании списка ответов", `Вопрос с таким номером (${numberQuestion}) нет в бланке ответов!`)
-        return;
-      }
-      let questionAnswer = questionItems[i].querySelector("textarea").value
-
-      const answer = examenAnswers.find(e => e.questionId == question.id)
-      if (answer) {
-        answer.textAnswer = questionAnswer
-        newAnswers.push(answer)
-      } else {
-        if (questionAnswer.trim().length > 0) {
-          let newAnswer = {
-            id: 0,
-            studentId: examenData.studentId,
-            questionId: question.id,
-            answerBlankId: examenData.id,
-            textAnswer: questionAnswer,
-            isDeleted: false
-          }
-          newAnswers.push(newAnswer)
-        }
-      }
+  const hanldeChangeTime = async () => {
+    if (isAnswersLoading || isSaveLoading) {
+      return
     }
 
-    const newExamData = {...examenData}
-    newExamData.answers = newAnswers
+    const dateNow = new Date()
+    if (dateNow >= autoSaveDate) {
+      const newExamData = { ...examenData }
+      newExamData.answers = examenAnswers
+      newExamData.examTicket = null
+      
+      await AnswerBlankService.updateAnswerBlank(newExamData)
+      autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
+      localStorage.setItem("timeToAutoSaveInMinutes", autoSaveDate)
+    }
+  }
+
+  const onChangeAnswer = (questionId, questionAnswer) => {
+    const answer = examenAnswers.find(e => e.questionId == questionId)
+   
+    if (answer) {
+      setExamenAnswers(prevState =>
+        prevState.map(item =>
+          item.questionId === questionId
+            ? { ...item, textAnswer: questionAnswer }
+            : item
+        )
+      )
+    } else {
+      setExamenAnswers([...examenAnswers, {
+        id: 0,
+        studentId: examenData.studentId,
+        questionId,
+        answerBlankId: examenData.id,
+        textAnswer: questionAnswer,
+        isDeleted: false
+      }])
+    }
+  }
+
+  const saveAnswers = (isEndExamen = false) => {
+    const newExamData = { ...examenData }
+    newExamData.answers = examenAnswers
     newExamData.examTicket = null
     saveAnswerBlank(newExamData, isEndExamen)
   }
@@ -112,10 +119,10 @@ const Examen = () => {
         <div className='container container--smaller'>
           <div className="examen__head">
             <h1 className="examen__title title">{examenData.discipline}</h1>
-            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true)}} seconds={timeToEnd} />}
+            {!isAnswersLoading && <Countdown onChange={hanldeChangeTime} onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true) }} seconds={timeToEnd} />}
           </div>
           <div className="examen__questions questions">
-            {!isAnswersLoading && <QuestionList isStop={isEndLoading} onUpdate={() => getAnswers(examenData.id)} studentId={examenData.studentId} answerBlank={examenData} examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
+            {!isAnswersLoading && <QuestionList onUpdate={onChangeAnswer} examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
           </div>
           <Button className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers()}><span>Сохранить ответы</span></Button>
           <div className="examen__bottom">

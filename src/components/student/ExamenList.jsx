@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import { AuthContext } from '../../context'
+import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
 const ExamenList = ({ examens, studentId }) => {
   const {showToast} = useContext(AuthContext)
@@ -21,6 +22,14 @@ const ExamenList = ({ examens, studentId }) => {
       let startExamenData = response.data
 
       let discipline = examens.find(e => e.examenId == examenId)?.discipline
+
+      let autoSaveDate = new Date(startExamenData.createDateTime)
+      const currentDate = new Date()
+      while (autoSaveDate < currentDate) {
+        autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
+      }
+      
+      localStorage.setItem("timeToAutoSaveInMinutes", autoSaveDate)
     
       redirect(`/examen/${examenId}`, {
         state: {...startExamenData, discipline}
