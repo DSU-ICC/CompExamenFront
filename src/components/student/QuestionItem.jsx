@@ -1,16 +1,8 @@
 import { useEffect, useState } from 'react'
 import TextArea from '../ui/TextArea'
 
-const QuestionItem = ({ question, answer, onChange }) => {
-  const [textAnswer, setTextAnswer] = useState(answer)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    if (isMounted) {
-      onChange(textAnswer?.trim() || null)
-    }
-    setIsMounted(true)
-  }, [textAnswer])
+const QuestionItem = ({ question, answer }) => {
+  const [text, setText] = useState(answer)
 
   return (
     <li className='questions__item questions-item'>
@@ -20,7 +12,7 @@ const QuestionItem = ({ question, answer, onChange }) => {
                 <p className="questions-item__text" onCopy={(evt) => evt.preventDefault()}>
                     {question.text}
                 </p>
-                <TextArea onPaste={(evt) => evt.preventDefault() } onChange={(evt) => setTextAnswer(evt.target.value)} className='questions-item__answer-text' value={textAnswer} />
+                <TextArea onPaste={(evt) => evt.preventDefault() } data-question-id={question.id} className='questions-item__answer-text' defaultValue={answer} />
             </div>
         </div>
     </li>

@@ -1,6 +1,6 @@
 import QuestionItem from './QuestionItem'
 
-const QuestionList = ({ examenAnswers, questions, onUpdate }) => {
+const QuestionList = ({ examenAnswers, questions }) => {
 
   const getAnswerQuestionById = (id) => {
     if (examenAnswers) {
@@ -24,7 +24,6 @@ const QuestionList = ({ examenAnswers, questions, onUpdate }) => {
               key={question.id} 
               question={question} 
               answer={getAnswerQuestionById(question.id)} 
-              onChange={(questionAnswer) => onUpdate(question.id, questionAnswer)}
             />
           )
         }

@@ -25,7 +25,7 @@ const ExamenList = ({ examens, studentId }) => {
 
       let autoSaveDate = new Date(startExamenData.createDateTime)
       const currentDate = new Date()
-      while (autoSaveDate < currentDate) {
+      while (autoSaveDate <= currentDate) {
         autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
       }
       

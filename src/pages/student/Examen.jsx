@@ -66,6 +66,35 @@ const Examen = () => {
     getAnswers(examenData.id)
   }, [])
 
+  const getStudentAnswers = () => {
+    const newAnswers = []
+
+    const textFields = document.querySelectorAll("textarea")
+    textFields.forEach(textField => {
+      const questionId = textField.dataset.questionId
+      const fieldValue = textField.value.trim() || null
+
+      const answer = examenAnswers.find(e => e.questionId == questionId)
+      if (answer) {
+        newAnswers.push({ ...answer, textAnswer: fieldValue })
+      } else {
+        if (fieldValue) {
+          let newAnswer = {
+            id: 0,
+            studentId: examenData.studentId,
+            questionId,
+            answerBlankId: examenData.id,
+            textAnswer: fieldValue,
+            isDeleted: false
+          }
+          newAnswers.push(newAnswer)
+        }
+      }
+    })
+
+    return newAnswers
+  }
+
   const hanldeChangeTime = async () => {
     if (isAnswersLoading || isSaveLoading) {
       return
@@ -74,41 +103,41 @@ const Examen = () => {
     const dateNow = new Date()
     if (dateNow >= autoSaveDate) {
       const newExamData = { ...examenData }
-      newExamData.answers = examenAnswers
+      newExamData.answers = getStudentAnswers()
       newExamData.examTicket = null
-      
+
       await AnswerBlankService.updateAnswerBlank(newExamData)
       autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
       localStorage.setItem("timeToAutoSaveInMinutes", autoSaveDate)
     }
   }
 
-  const onChangeAnswer = (questionId, questionAnswer) => {
-    const answer = examenAnswers.find(e => e.questionId == questionId)
-   
-    if (answer) {
-      setExamenAnswers(prevState =>
-        prevState.map(item =>
-          item.questionId === questionId
-            ? { ...item, textAnswer: questionAnswer }
-            : item
-        )
-      )
-    } else {
-      setExamenAnswers([...examenAnswers, {
-        id: 0,
-        studentId: examenData.studentId,
-        questionId,
-        answerBlankId: examenData.id,
-        textAnswer: questionAnswer,
-        isDeleted: false
-      }])
-    }
-  }
+  // const onChangeAnswer = (questionId, questionAnswer) => {
+  //   const answer = examenAnswers.find(e => e.questionId == questionId)
+
+  //   if (answer) {
+  //     setExamenAnswers(prevState =>
+  //       prevState.map(item =>
+  //         item.questionId === questionId
+  //           ? { ...item, textAnswer: questionAnswer }
+  //           : item
+  //       )
+  //     )
+  //   } else {
+  //     setExamenAnswers([...examenAnswers, {
+  //       id: 0,
+  //       studentId: examenData.studentId,
+  //       questionId,
+  //       answerBlankId: examenData.id,
+  //       textAnswer: questionAnswer,
+  //       isDeleted: false
+  //     }])
+  //   }
+  // }
 
   const saveAnswers = (isEndExamen = false) => {
     const newExamData = { ...examenData }
-    newExamData.answers = examenAnswers
+    newExamData.answers = getStudentAnswers()
     newExamData.examTicket = null
     saveAnswerBlank(newExamData, isEndExamen)
   }
@@ -122,7 +151,7 @@ const Examen = () => {
             {!isAnswersLoading && <Countdown onChange={hanldeChangeTime} onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true) }} seconds={timeToEnd} />}
           </div>
           <div className="examen__questions questions">
-            {!isAnswersLoading && <QuestionList onUpdate={onChangeAnswer} examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
+            {!isAnswersLoading && <QuestionList examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
           </div>
           <Button className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers()}><span>Сохранить ответы</span></Button>
           <div className="examen__bottom">
