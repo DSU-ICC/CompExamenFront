@@ -22,14 +22,6 @@ const ExamenList = ({ examens, studentId }) => {
       let startExamenData = response.data
 
       let discipline = examens.find(e => e.examenId == examenId)?.discipline
-
-      let autoSaveDate = new Date(startExamenData.createDateTime)
-      const currentDate = new Date()
-      while (autoSaveDate <= currentDate) {
-        autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
-      }
-      
-      localStorage.setItem("timeToAutoSaveInMinutes", autoSaveDate)
     
       redirect(`/examen/${examenId}`, {
         state: {...startExamenData, discipline}

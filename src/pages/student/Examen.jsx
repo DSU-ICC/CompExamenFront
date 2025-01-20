@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'
 import Countdown from '../../components/ui/Countdown'
 import QuestionList from '../../components/student/QuestionList'
 import Button from '../../components/ui/Button'
@@ -12,7 +12,7 @@ import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
 const Examen = () => {
   const { showToast } = useContext(AuthContext)
-  let autoSaveDate = new Date(localStorage.getItem("timeToAutoSaveInMinutes"))
+  const autoSaveTimerId = useRef()
 
   const [modalActive, setModalActive] = useState(false)
   const [examenAnswers, setExamenAnswers] = useState([])
@@ -51,7 +51,7 @@ const Examen = () => {
 
   const [endExamen, isEndLoading, endError] = useFetching(async (answerBlankId) => {
     const response = await AnswerBlankService.endExamenForStudent(answerBlankId)
-    localStorage.removeItem("timeToAutoSaveInMinutes")
+    clearInterval(autoSaveTimerId.current)
 
     if (response.status == 200) {
       showToast("success", `Статус 200`, "Ответы сохранены!")
@@ -66,15 +66,31 @@ const Examen = () => {
     getAnswers(examenData.id)
   }, [])
 
+  // useEffect(() => {  
+  //   autoSaveTimerId.current = setInterval(() => {
+  //     if (isAnswersLoading || isSaveLoading) {
+  //       return
+  //     }
+  
+  //     const newExamData = { ...examenData }
+  //     newExamData.answers = getStudentAnswers()
+  //     newExamData.examTicket = null
+
+  //     saveAnswerBlank(newExamData)
+  //   }, TIME_TO_AUTOSAVE_IN_MINUTES * 60000)
+
+  //   return () => clearInterval(autoSaveTimerId.current)
+  // }, [])
+
   const getStudentAnswers = () => {
     const newAnswers = []
 
     const textFields = document.querySelectorAll("textarea")
     textFields.forEach(textField => {
-      const questionId = textField.dataset.questionId
+      const questionId = parseInt(textField.dataset.questionId)
       const fieldValue = textField.value.trim() || null
-
       const answer = examenAnswers.find(e => e.questionId == questionId)
+
       if (answer) {
         newAnswers.push({ ...answer, textAnswer: fieldValue })
       } else {
@@ -95,46 +111,6 @@ const Examen = () => {
     return newAnswers
   }
 
-  const hanldeChangeTime = async () => {
-    if (isAnswersLoading || isSaveLoading) {
-      return
-    }
-
-    const dateNow = new Date()
-    if (dateNow >= autoSaveDate) {
-      const newExamData = { ...examenData }
-      newExamData.answers = getStudentAnswers()
-      newExamData.examTicket = null
-
-      await AnswerBlankService.updateAnswerBlank(newExamData)
-      autoSaveDate.setMinutes(autoSaveDate.getMinutes() + TIME_TO_AUTOSAVE_IN_MINUTES)
-      localStorage.setItem("timeToAutoSaveInMinutes", autoSaveDate)
-    }
-  }
-
-  // const onChangeAnswer = (questionId, questionAnswer) => {
-  //   const answer = examenAnswers.find(e => e.questionId == questionId)
-
-  //   if (answer) {
-  //     setExamenAnswers(prevState =>
-  //       prevState.map(item =>
-  //         item.questionId === questionId
-  //           ? { ...item, textAnswer: questionAnswer }
-  //           : item
-  //       )
-  //     )
-  //   } else {
-  //     setExamenAnswers([...examenAnswers, {
-  //       id: 0,
-  //       studentId: examenData.studentId,
-  //       questionId,
-  //       answerBlankId: examenData.id,
-  //       textAnswer: questionAnswer,
-  //       isDeleted: false
-  //     }])
-  //   }
-  // }
-
   const saveAnswers = (isEndExamen = false) => {
     const newExamData = { ...examenData }
     newExamData.answers = getStudentAnswers()
@@ -148,7 +124,7 @@ const Examen = () => {
         <div className='container container--smaller'>
           <div className="examen__head">
             <h1 className="examen__title title">{examenData.discipline}</h1>
-            {!isAnswersLoading && <Countdown onChange={hanldeChangeTime} onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true) }} seconds={timeToEnd} />}
+            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true) }} seconds={timeToEnd} />}
           </div>
           <div className="examen__questions questions">
             {!isAnswersLoading && <QuestionList examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
