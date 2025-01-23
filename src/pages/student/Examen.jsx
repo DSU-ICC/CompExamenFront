@@ -13,6 +13,7 @@ import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 const Examen = () => {
   const { showToast } = useContext(AuthContext)
   const autoSaveTimerId = useRef()
+  const saveBtnRef = useRef(null)
 
   const [modalActive, setModalActive] = useState(false)
   const [examenAnswers, setExamenAnswers] = useState([])
@@ -66,21 +67,17 @@ const Examen = () => {
     getAnswers(examenData.id)
   }, [])
 
-  // useEffect(() => {  
-  //   autoSaveTimerId.current = setInterval(() => {
-  //     if (isAnswersLoading || isSaveLoading) {
-  //       return
-  //     }
+  useEffect(() => {  
+    autoSaveTimerId.current = setInterval(() => {
+      if (isAnswersLoading || isSaveLoading) {
+        return
+      }
   
-  //     const newExamData = { ...examenData }
-  //     newExamData.answers = getStudentAnswers()
-  //     newExamData.examTicket = null
+      saveBtnRef.current.click()
+    }, TIME_TO_AUTOSAVE_IN_MINUTES * 60000)
 
-  //     saveAnswerBlank(newExamData)
-  //   }, TIME_TO_AUTOSAVE_IN_MINUTES * 60000)
-
-  //   return () => clearInterval(autoSaveTimerId.current)
-  // }, [])
+    return () => clearInterval(autoSaveTimerId.current)
+  }, [])
 
   const getStudentAnswers = () => {
     const newAnswers = []
@@ -129,7 +126,7 @@ const Examen = () => {
           <div className="examen__questions questions">
             {!isAnswersLoading && <QuestionList examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
           </div>
-          <Button className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers()}><span>Сохранить ответы</span></Button>
+          <Button ref={saveBtnRef} className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers()}><span>Сохранить ответы</span></Button>
           <div className="examen__bottom">
             <Button className='examen__btn' onClick={() => setModalActive(true)}>Завершить экзамен</Button>
             {!isAnswersLoading && <Countdown seconds={timeToEnd} />}

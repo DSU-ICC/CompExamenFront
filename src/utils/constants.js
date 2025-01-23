@@ -1,1 +1,1 @@
-export const TIME_TO_AUTOSAVE_IN_MINUTES = 1
+export const TIME_TO_AUTOSAVE_IN_MINUTES = 5
