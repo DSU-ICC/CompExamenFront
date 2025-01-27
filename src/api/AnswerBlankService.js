@@ -41,13 +41,14 @@ export default class AnswerBlankService {
         return response;
     }
 
-    static async resetExamenForStudent(answerBlankId, isRemoveAnswerBlank) {
+    static async resetExamenForStudent(answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes) {
         const response = await axios.post(`${API_URL}/AnswerBlank/ResetAnswerBlank`, {
             answerBlankId: answerBlankId,
             isRemoveAnswerBlank: isRemoveAnswerBlank
         }, {
             params: {
                 answerBlankId: answerBlankId,
+                additionalTimeInMinutes,
                 isRemoveAnswerBlank: isRemoveAnswerBlank
             },
             headers: {

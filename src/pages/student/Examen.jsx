@@ -79,14 +79,14 @@ const Examen = () => {
     return () => clearInterval(autoSaveTimerId.current)
   }, [])
 
-  const getStudentAnswers = () => {
+  const getStudentAnswers = (currentExamenAnswers) => {
     const newAnswers = []
 
     const textFields = document.querySelectorAll("textarea")
     textFields.forEach(textField => {
       const questionId = parseInt(textField.dataset.questionId)
       const fieldValue = textField.value.trim() || null
-      const answer = examenAnswers.find(e => e.questionId == questionId)
+      const answer = currentExamenAnswers.find(e => e.questionId == questionId)
 
       if (answer) {
         newAnswers.push({ ...answer, textAnswer: fieldValue })
@@ -108,9 +108,9 @@ const Examen = () => {
     return newAnswers
   }
 
-  const saveAnswers = (isEndExamen = false) => {
+  const saveAnswers = (examenAnswers, isEndExamen = false) => {
     const newExamData = { ...examenData }
-    newExamData.answers = getStudentAnswers()
+    newExamData.answers = getStudentAnswers(examenAnswers)
     newExamData.examTicket = null
     saveAnswerBlank(newExamData, isEndExamen)
   }
@@ -121,12 +121,12 @@ const Examen = () => {
         <div className='container container--smaller'>
           <div className="examen__head">
             <h1 className="examen__title title">{examenData.discipline}</h1>
-            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(true) }} seconds={timeToEnd} />}
+            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(examenAnswers, true) }} seconds={timeToEnd} />}
           </div>
           <div className="examen__questions questions">
             {!isAnswersLoading && <QuestionList examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}
           </div>
-          <Button ref={saveBtnRef} className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers()}><span>Сохранить ответы</span></Button>
+          <Button ref={saveBtnRef} className={isSaveLoading ? "loading" : ""} onClick={() => saveAnswers(examenAnswers)}><span>Сохранить ответы</span></Button>
           <div className="examen__bottom">
             <Button className='examen__btn' onClick={() => setModalActive(true)}>Завершить экзамен</Button>
             {!isAnswersLoading && <Countdown seconds={timeToEnd} />}
@@ -137,7 +137,7 @@ const Examen = () => {
         {!isAnswersLoading && <Countdown seconds={timeToEnd} />}
         <h2 className="popup__title title">Вы действительно хотите завершить экзамен?</h2>
         <div className="confirm-buttons">
-          <Button onClick={() => saveAnswers(true)} className={`confirm-button confirm-button--yes${isEndLoading ? ' loading' : ''}`}><span>Да</span></Button>
+          <Button onClick={() => saveAnswers(examenAnswers, true)} className={`confirm-button confirm-button--yes${isEndLoading ? ' loading' : ''}`}><span>Да</span></Button>
           <Button className="confirm-button confirm-button--no" onClick={() => setModalActive(false)}>Нет</Button>
         </div>
       </Popup>

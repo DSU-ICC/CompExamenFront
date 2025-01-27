@@ -26,10 +26,7 @@ const AdminPage = () => {
   const [modalResetForTeacherActive, setModalResetForTeacherActive] = useState(false)
   const [modalResetTeacherConfirmActive, setModalResetTeacherConfirmActive] = useState(false)
   const [examenId, setExamenId] = useState(null)
-  const [students, setStudents] = useState([])
   const [studentsForSelect, setStudentsForSelect] = useState([])
-  const [studentId, setStudentId] = useState(null)
-  const [isRemoveAnswerBlank, setIsRemoveAnswerBlank] = useState(false)
   const [copyExamenDate, setCopyExamenDate] = useState(new Date())
 
   const [getExamens, isExamensLoading, examError] = useFetching(async () => {
@@ -78,38 +75,37 @@ const AdminPage = () => {
   const [getStudentsByExamenId, isStudentsLoading, studentsErr] = useFetching(async (examenId) => {
     const response = await ExamenService.getStudentsByExamenId(examenId)
     if (response.status == 200) {
-        const dataArr = []
-        response.data.forEach(dataItem => {
-            if (dataItem.answerBlank != null && dataItem.answerBlank.isDeleted != true) {
-                dataArr.push({
-                    value: dataItem.studentId,
-                    label: `${dataItem.lastName} ${dataItem.firstName} ${dataItem.patr}`
-                })
-            }
-        })
-        
-        setStudents(response.data)
-        setStudentsForSelect(dataArr)
+      const dataArr = []
+      response.data.forEach(dataItem => {
+        if (dataItem.answerBlank != null && dataItem.answerBlank.isDeleted != true) {
+          dataArr.push({
+            value: dataItem.answerBlank.id,
+            label: `${dataItem.lastName} ${dataItem.firstName} ${dataItem.patr}`
+          })
+        }
+      })
+
+      setStudentsForSelect(dataArr)
     }
   })
 
-  const [resetExamenForStudent, isResetStudentLoading, resetStudentErr] = useFetching(async (answerBlankId, isRemoveAnswerBlank) => {
-    const response = await AnswerBlankService.resetExamenForStudent(answerBlankId, isRemoveAnswerBlank)
+  const [resetExamenForStudent, isResetStudentLoading, resetStudentErr] = useFetching(async (answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes) => {
+    const response = await AnswerBlankService.resetExamenForStudent(answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes)
     if (response.status == 200) {
-        alert("Сброс экзамена студенту успешно завершен")
-        setModalResetStudentConfirmActive(false)
-        setExamenId(null)
-        setStudentId(null)
-        setIsRemoveAnswerBlank(false)
+      alert("Сброс экзамена студенту успешно завершен")
+      setModalResetStudentConfirmActive(false)
+      setExamenId(null)
+      // setStudentId(null)
+      // setIsRemoveAnswerBlank(false)
     }
   })
 
   const [resetExamenForTacher, isResetTeacherLoading, resetTeacherErr] = useFetching(async (examenId) => {
     const response = await ExamenService.resetExamenForTeacher(examenId)
     if (response.status == 200) {
-        alert("Сброс экзамена преподавателю успешно завершен")
-        setModalResetTeacherConfirmActive(false)
-        setExamenId(null)
+      alert("Сброс экзамена преподавателю успешно завершен")
+      setModalResetTeacherConfirmActive(false)
+      setExamenId(null)
     }
   })
 
@@ -141,9 +137,8 @@ const AdminPage = () => {
   }
 
   const onResetExamenForStudent = () => {
-    const student = students.find(s => s.studentId == studentId)
-    const studentAnswerBlankId = student.answerBlank.id
-    resetExamenForStudent(studentAnswerBlankId, isRemoveAnswerBlank)
+    const { answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes } = getResetExamenForStudentData()
+    resetExamenForStudent(answerBlankId, isRemoveAnswerBlank, parseInt(additionalTimeInMinutes) || null)
   }
 
   const onResetExamenForTeacher = () => {
@@ -162,8 +157,12 @@ const AdminPage = () => {
     mode: "onSubmit"
   })
 
-  const { control: controlResetExamenForStudent, handleSubmit: handleSubmitResetExamenForStudent } = useForm({
-    mode: "onSubmit"
+  const { control: controlResetExamenForStudent, handleSubmit: handleSubmitResetExamenForStudent, getValues: getResetExamenForStudentData } = useForm({
+    mode: "onSubmit",
+    defaultValues: {
+      additionalTimeInMinutes: null,
+      isRemoveAnswerBlank: false
+    }
   })
 
   const { control: controlResetExamen, handleSubmit: handleSubmitResetExamen } = useForm({
@@ -182,7 +181,7 @@ const AdminPage = () => {
           <Button onClick={() => setModalResetForTeacherActive(true)}>Сбросить экзамен преподавателю</Button>
         </div>
       </div>
-      <Popup active={modalEditActive} setActive={() => {setExamenId(null); setModalEditActive(false)}}>
+      <Popup active={modalEditActive} setActive={() => { setExamenId(null); setModalEditActive(false) }}>
         <h2 className="popup__title title">Изменение экзамена</h2>
         <form className='form' style={{ marginBottom: 20 }} onSubmit={handleSubmit(handleEditExamen)}>
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
@@ -194,15 +193,15 @@ const AdminPage = () => {
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите экзамен'
-                        options={examensForSelect}
-                        isLoading={isExamensLoading}
-                        isDisabled={isExamensLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    placeholder='Выберите экзамен'
+                    options={examensForSelect}
+                    isLoading={isExamensLoading}
+                    isDisabled={isExamensLoading}
+                  />
+                </div>
               )}
             />
           </label>
@@ -221,15 +220,15 @@ const AdminPage = () => {
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите экзамен'
-                        options={examensForSelect}
-                        isLoading={isExamensLoading}
-                        isDisabled={isExamensLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    placeholder='Выберите экзамен'
+                    options={examensForSelect}
+                    isLoading={isExamensLoading}
+                    isDisabled={isExamensLoading}
+                  />
+                </div>
               )}
             />
           </label>
@@ -243,7 +242,7 @@ const AdminPage = () => {
           <Button className="confirm-button confirm-button--no" onClick={() => setModalDeleteConfirmActive(false)}>Нет</Button>
         </div>
       </Popup>
-      <Popup active={modalResetForStudentActive} setActive={() => { setExamenId(null); setModalResetForStudentActive(false)}}>
+      <Popup active={modalResetForStudentActive} setActive={() => { setExamenId(null); setModalResetForStudentActive(false) }}>
         <h2 className="popup__title title">Сброс экзамена студенту</h2>
         <form className='form' style={{ marginBottom: 20 }} onSubmit={handleSubmitResetExamenForStudent(handleResetExamenForStudent)}>
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
@@ -255,15 +254,15 @@ const AdminPage = () => {
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setExamenId(newValue.value); getStudentsByExamenId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите экзамен'
-                        options={examensForSelect}
-                        isLoading={isExamensLoading}
-                        isDisabled={isExamensLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => { getStudentsByExamenId(newValue.value); onChange(newValue.value) }}
+                    placeholder='Выберите экзамен'
+                    options={examensForSelect}
+                    isLoading={isExamensLoading}
+                    isDisabled={isExamensLoading}
+                  />
+                </div>
               )}
             />
           </label>
@@ -271,20 +270,38 @@ const AdminPage = () => {
             <span className='form__text'>Студент</span>
             <Controller
               control={controlResetExamenForStudent}
-              name='studentId'
+              name='answerBlankId'
               rules={{
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setStudentId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите студента'
-                        options={studentsForSelect}
-                        isLoading={isStudentsLoading}
-                        isDisabled={isStudentsLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => onChange(newValue.value)}
+                    placeholder='Выберите студента'
+                    options={studentsForSelect}
+                    isLoading={isStudentsLoading}
+                    isDisabled={isStudentsLoading}
+                  />
+                </div>
+              )}
+            />
+          </label>
+          <label className='form__label'>
+            <span className='form__text'>Дополнительное время в минутах</span>
+            <Controller
+              control={controlResetExamenForStudent}
+              name='additionalTimeInMinutes'
+              render={({ field: { onChange } }) => (
+                <Input
+                  type="number"
+                  onWheel={() => document.activeElement.blur()}
+                  onInput={e => {
+                    if (e.target.value.length > 3) {e.target.value = e.target.value.slice(0, 3)}
+                  }}
+                  className='form__input form__input--small'
+                  onChange={(newValue) => onChange(newValue)}
+                />
               )}
             />
           </label>
@@ -293,12 +310,12 @@ const AdminPage = () => {
             <Controller
               control={controlResetExamenForStudent}
               name="isRemoveAnswerBlank"
-              render={({ field: { onChange }, fieldState: { error } }) => (
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <Input
-                  value={isRemoveAnswerBlank}
+                  value={value}
                   type="checkbox"
                   className={`form__input ${error ? " error" : ""}`}
-                  onChange={(newValue) => { setIsRemoveAnswerBlank(newValue.target.checked); onChange(newValue.target.checked) }}
+                  onChange={(newValue) => onChange(newValue.target.checked)}
                 />
               )}
             />
@@ -313,7 +330,7 @@ const AdminPage = () => {
           <Button className="confirm-button confirm-button--no" onClick={() => setModalResetStudentConfirmActive(false)}>Нет</Button>
         </div>
       </Popup>
-      <Popup active={modalResetForTeacherActive} setActive={() => { setExamenId(null); setModalResetForTeacherActive(false)}}>
+      <Popup active={modalResetForTeacherActive} setActive={() => { setExamenId(null); setModalResetForTeacherActive(false) }}>
         <h2 className="popup__title title">Сброс экзамена преподавателю</h2>
         <form className='form' style={{ marginBottom: 20 }} onSubmit={handleSubmitResetExamen(handleResetExamenForTeacher)}>
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
@@ -325,15 +342,15 @@ const AdminPage = () => {
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите экзамен'
-                        options={examensForSelect}
-                        isLoading={isExamensLoading}
-                        isDisabled={isExamensLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    placeholder='Выберите экзамен'
+                    options={examensForSelect}
+                    isLoading={isExamensLoading}
+                    isDisabled={isExamensLoading}
+                  />
+                </div>
               )}
             />
           </label>
@@ -359,15 +376,15 @@ const AdminPage = () => {
                 required: true
               }}
               render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className={error ? 'error' : ''}>
-                      <Select 
-                        onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
-                        placeholder='Выберите экзамен'
-                        options={examensForSelect}
-                        isLoading={isExamensLoading}
-                        isDisabled={isExamensLoading}
-                      />
-                  </div>
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    placeholder='Выберите экзамен'
+                    options={examensForSelect}
+                    isLoading={isExamensLoading}
+                    isDisabled={isExamensLoading}
+                  />
+                </div>
               )}
             />
           </label>

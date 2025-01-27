@@ -36,6 +36,7 @@ const LoginStudent = () => {
 
         setFilials(dataArr)
     })
+    
     useEffect(() => {
         getFilials()
     }, [])
@@ -154,8 +155,10 @@ const LoginStudent = () => {
         setStudents(dataArr)
     })
     useEffect(() => {
-        resetSelectValue(studentSelectRef, setStudents)
-        getStudents(departmentId, course, group, filialId)
+        if (group) {
+            resetSelectValue(studentSelectRef, setStudents)
+            getStudents(departmentId, course, group, filialId)
+        }
     }, [group])
 
     const { control, handleSubmit } = useForm({
