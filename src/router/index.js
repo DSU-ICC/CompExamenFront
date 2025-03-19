@@ -7,8 +7,6 @@ import LoginAdmin from "../pages/LoginAdmin";
 import ExamenTeacher from "../pages/teacher/ExamenTeacher";
 import CreateTicketsForm from "../pages/uko/CreateTicketsForm";
 import ExamenResults from '../pages/teacher/ExamenResults'
-import EditExamenForm from "../pages/uko/EditExamenForm";
-import EditTicketsForm from "../pages/uko/EditTicketsForm";
 import AnswersCheckTeacher from "../pages/teacher/AnswersCheckTeacher";
 import StudentAnswers from "../pages/teacher/StudentAnswers"
 import UkoPage from "../pages/uko/UkoPage";
@@ -17,6 +15,10 @@ import ExamenResultsUko from "../pages/uko/ExamenResultsUko";
 import StudentAnswersUko from "../pages/uko/StudentAnswersUko";
 import Archive from "../pages/uko/Archive";
 import ArchiveTeacher from "../pages/teacher/ArchiveTeacher";
+import EditExamenForUko from "../pages/uko/EditExamenForUko";
+import EditExamenForAdmin from "../pages/admin/EditExamenForAdmin";
+import EditTicketsForAdmin from "../pages/admin/EditTicketsForAdmin";
+import EditTicketsForUko from "../pages/uko/EditTicketsForUko";
 
 export const privateStudentRoutes = [
     {path: '/examens/:id', element: <Examens />, exact: true},
@@ -37,8 +39,8 @@ export const privateUkoRoutes = [
     {path: '/uko/:id', element: <UkoPage />, exact: true},
     {path: '/uko/create-examen', element: <CreateExamenForm />, exact: true},
     {path: '/uko/create-tickets', element: <CreateTicketsForm />, exact: true},
-    {path: '/uko/edit-examen', element: <EditExamenForm />, exact: true},
-    {path: '/uko/edit-tickets', element: <EditTicketsForm />, exact: true},
+    {path: '/uko/edit-examen', element: <EditExamenForUko />, exact: true},
+    {path: '/uko/edit-tickets', element: <EditTicketsForUko />, exact: true},
     {path: '/uko/examen-results/:id', element: <ExamenResultsUko/>, exact: true},
     {path: '/uko/student-answers', element: <StudentAnswersUko />, exact: true},
     {path: '/uko/archive', element: <Archive />, exact: true}
@@ -48,8 +50,8 @@ export const privateAdminRoutes = [
     {path: '/admin', element: <AdminPage />, exact: true},
     {path: '/admin/create-examen', element: <CreateExamenForm />, exact: true},
     {path: '/admin/create-tickets', element: <CreateTicketsForm />, exact: true},
-    {path: '/admin/edit-examen', element: <EditExamenForm />, exact: true},
-    {path: '/admin/edit-tickets', element: <EditTicketsForm />, exact: true}
+    {path: '/admin/edit-examen', element: <EditExamenForAdmin />, exact: true},
+    {path: '/admin/edit-tickets', element: <EditTicketsForAdmin />, exact: true}
 ]
 
 export const publicRoutes = [

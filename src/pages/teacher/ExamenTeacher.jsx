@@ -7,6 +7,7 @@ import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import { AuthContext } from '../../context'
 import { useNavigate } from 'react-router-dom'
+import { formatDate } from '../../utils/date'
 
 const ExamenTeacher = () => {
     const { employeeId } = useContext(AuthContext)
@@ -14,7 +15,7 @@ const ExamenTeacher = () => {
     const [students, setStudents] = useState([])
     const { id } = useParams()
     const data = useLocation()
-    const { course, group, deptName, examenName } = data.state
+    const { course, group, deptName, examenName, examDate } = data.state
 
     const [getStudents, isStudentLoading, studentErr] = useFetching(async (examenId) => {
         const response = await ExamenService.getStudentsByExamenIdForChecking(examenId)
@@ -57,6 +58,7 @@ const ExamenTeacher = () => {
                     <div className="examen-teacher__data data">
                         <span className='data__stage'>{`${course} курс ${group} группа`}</span>
                         <span className='data__department'>{deptName}</span>
+                        <span className='data__exam-date'>Дата проведения экзамена: {formatDate(new Date(examDate))}</span>
                     </div>
                     {isStudentLoading ? <div>Загрузка студентов...</div> : <ExamenStudentListTeacher deptName={deptName} students={students} />}
                     <Button onClick={() => setModalActive(true)}>Закончить экзамен</Button>

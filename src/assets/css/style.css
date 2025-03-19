@@ -655,6 +655,12 @@ main {
     color: #000;
 }
 
+.data__exam-date {
+    font-size: 20px;
+    margin-top: 8px;
+    display: block;
+}
+
 .data__teacher,
 .data__student {
     display: block;

@@ -29,7 +29,7 @@ const ExamenItemAdmin = ({ examen }) => {
       <div className="examens-item__btns">
         {
           (isStartExamen(new Date(examen.examDate)) && examen.endExamDate == null)
-          ? <Link to={`/teacher/examen/${examen.examenId}`} state={ { course: examen.course, group: examen.group, deptName: examen.department.deptName, examenName: examen.discipline } } className='discipline-btn'>{examen.discipline}</Link>
+          ? <Link to={`/teacher/examen/${examen.examenId}`} state={ { course: examen.course, group: examen.group, deptName: examen.department.deptName, examenName: examen.discipline, examDate: examen.examDate } } className='discipline-btn'>{examen.discipline}</Link>
           : <Link to={`/teacher/examen-results/${examen.examenId}`} state={ { course: examen.course, group: examen.group, deptName: examen.department.deptName, examenName: examen.discipline, examDate: examen.examDate } } className='discipline-btn'>{examen.discipline}</Link>
         }
       </div>

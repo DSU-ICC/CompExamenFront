@@ -110,8 +110,8 @@ const AdminPage = () => {
   })
 
   const handleEditExamen = () => {
-    redirect('/uko/edit-examen', {
-      state: examens.find(e => e.examenId == examenId)
+    redirect('/admin/edit-examen', {
+      state: examens.find(e => e.id == examenId)
     })
   }
 

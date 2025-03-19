@@ -1,11 +1,10 @@
-import { useState, useEffect, useReducer, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Popup from '../../components/ui/Popup'
 import Button from '../../components/ui/Button'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import Select from '../../components/ui/Select'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { formatDate } from '../../utils/date'
 import { Controller, useForm } from 'react-hook-form';
 import DatePicker from '../../components/ui/DatePicker'
 import ExamensListUko from '../../components/uko/ExamensListUko'
@@ -30,7 +29,6 @@ const UkoPage = () => {
 
   const filialSelectForFilterRef = useRef(null)
   const facultySelectForFilterRef = useRef(null)
-  const datePickerForFilterRef = useRef(null)
   const examenDeleteSelectRef = useRef(null)
 
   const [getExamensByEmployeeId, isExamensLoading, examError] = useFetching(async (userId) => {
@@ -145,14 +143,25 @@ const UkoPage = () => {
 
   const { control: controlFilter, handleSubmit: handleSubmitFilter, reset: resetFilterForm} = useForm({
     mode: "onSubmit",
+    defaultValues: {
+      startDate: new Date(new Date().setHours(0, 0, 0)),
+      endDate: new Date(new Date().setHours(0, 0, 0))
+    }
   })
   
   const onExamenFilter = (data) => {
-    data.examDate = formatDate(datePickerForFilterRef.current.props.selected).split(" ")[0] 
-    setExamensWithFilter(examens.filter(e => ((e.filial == null && data.filialId == 1) || e.filial?.filId == data.filialId)
-      && e.department.facId == data.facultyId 
-      && formatDate(new Date(e.examDate)).includes(data.examDate))
-    )
+    console.log(data.startDate)
+    let filteredExamens = examens
+    if (data.filialId) {
+      filteredExamens = filteredExamens.filter(e => ((e.filial == null && data.filialId == 1) || e.filial?.filId == data.filialId))
+    }
+
+    if (data.facultyId) {
+      filteredExamens = filteredExamens.filter(e => e.department.facId == data.facultyId)
+    }
+
+    filteredExamens = filteredExamens.filter(e => (new Date(e.examDate) >= data.startDate) && (new Date(e.examDate) <= new Date(new Date(data.endDate).setDate(new Date(data.endDate).getDate() + 1))))
+    setExamensWithFilter(filteredExamens)
   }
 
   const resetFilter = (evt) => {
@@ -161,7 +170,6 @@ const UkoPage = () => {
     evt.preventDefault()
     filialSelectForFilterRef.current.clearValue()
     facultySelectForFilterRef.current.clearValue()
-    datePickerForFilterRef.current.setSelected(new Date())
     setExamensWithFilter(examens)
   }
 
@@ -183,9 +191,6 @@ const UkoPage = () => {
               <Controller
                 control={controlFilter}
                 name='filialId'
-                rules={{
-                  required: true
-                }}
                 render={({ field: { onChange }, fieldState: { error } }) => (
                   <div className={error ? 'error' : ''}>
                     <Select
@@ -205,9 +210,6 @@ const UkoPage = () => {
               <Controller
                 control={controlFilter}
                 name='facultyId'
-                rules={{
-                  required: true
-                }}
                 render={({ field: { onChange }, fieldState: { error } }) => (
                   <div className={error ? 'error' : ''}>
                     <Select
@@ -222,17 +224,33 @@ const UkoPage = () => {
                 )}
               />
             </label>
-            <label className='form__label'>
-              <span className='form__text'>Дата</span>
+            <label className='form__label' onClick={(e) => e.preventDefault()}>
+              <span className='form__text'>Начальная дата</span>
               <Controller
                 control={controlFilter}
-                name='examDate'
-                render={({ field: { onChange } }) => (
+                name='startDate'
+                render={({ field: { value, onChange } }) => (
                   <div>
                     <DatePicker
-                      ref={datePickerForFilterRef}
+                      value={value}
+                      onChange={onChange}
                       showTimeSelect={false}
-                      onChange={(newDate) => onChange(newDate)}
+                    />
+                  </div>
+                )}
+              />
+            </label>
+            <label className='form__label' onClick={(e) => e.preventDefault()}>
+              <span className='form__text'>Конечная дата</span>
+              <Controller
+                control={controlFilter}
+                name='endDate'
+                render={({ field: { value, onChange } }) => (
+                  <div>
+                    <DatePicker
+                      value={value}
+                      onChange={onChange}
+                      showTimeSelect={false}
                     />
                   </div>
                 )}
