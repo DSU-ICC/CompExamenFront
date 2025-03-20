@@ -7,6 +7,22 @@ export default class ExamenService {
         return response;
     }
 
+    static async getExamenById(examenId) {
+        const response = await axios.get(`${API_URL}/Examen/GetExamenByExamenId`, {
+            params: {examenId}
+        })
+        return response
+    }
+
+    static async getRetakes() {
+        const response = await axios.get(`${API_URL}/Examen/GetRetakes`, {
+            headers: {
+                "Authorization": `Bearer ${getToken()}`
+            }
+        })
+        return response
+    }
+
     static async getExamensByStudentId(id) {
         const response = await axios.get(`${API_URL}/Examen/GetExamensByStudentId`, {
             params: {
@@ -152,8 +168,8 @@ export default class ExamenService {
                 filialId: filter.filialId,
                 facultyId: filter.facultyId,
                 departmentId: filter.departmentId,
-                startDate: filter.startDate,
-                endDate: filter.endDate
+                startDate: new Date(new Date(filter.startDate).setHours(new Date(filter.startDate).getHours() + 3)),
+                endDate: new Date(new Date(filter.endDate).setHours(new Date(filter.endDate).getHours() + 3))
             },
             headers: {
                 "Authorization": `Bearer ${getToken()}`

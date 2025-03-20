@@ -1,8 +1,7 @@
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
-import TicketService from '../../api/TicketService'
-import { useContext, useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { AuthContext } from '../../context'
 import EditTicketsForm from '../../components/common/EditTicketsForm'
 
@@ -14,7 +13,7 @@ const EditTicketsForUko = () => {
 
   const { employeeId } = useContext(AuthContext)
 
-  const [editExamen, isExamenLoading, examError] = useFetching(async (examData) => {
+  const [editExamen, isEditLoading] = useFetching(async (examData) => {
     const response = await ExamenService.editExamen(examData)
 
     if (response.status == 200) {
@@ -23,18 +22,10 @@ const EditTicketsForUko = () => {
     }
   })
 
-  const [tickets, setTickets] = useState([])
-  const [getTickets, isTicketsLoading, ticketsErr] = useFetching(async (examenId) => {
-    const response = await TicketService.getTicketsByExamenId(examenId)
-
-    if (response.status == 200) {
-      setTickets(response.data)
-    }
-  })
-
-  useEffect(() => {
-      getTickets(examData.id)
-    }, [])
+  const handleSubmitForm = (tickets) => {
+    examData.tickets = tickets
+    editExamen(examData)
+  }
 
   return (
     <section className='create-tickets'>
@@ -49,11 +40,7 @@ const EditTicketsForUko = () => {
             </Link>
           </div>
           <h1 className='create-tickets__title title'>Редактирование билетов</h1>
-          {
-            isTicketsLoading ? <div className='loader'>Идет загрузка билетов экзамена...</div>
-            :
-            <EditTicketsForm ticketsData={tickets} backLink={`/uko/${employeeId}`} onSubmit={editExamen} isLoading={isExamenLoading} />
-          }
+          <EditTicketsForm examData={examData} backLink={`/uko/${employeeId}`} onSubmit={handleSubmitForm} isLoading={isEditLoading} />
         </div>
       </div>
     </section>

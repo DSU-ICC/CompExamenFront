@@ -1,19 +1,17 @@
-import Select from '../ui/Select'
-import Input from '../ui/Input'
-import Button from '../ui/Button'
-import DatePicker from '../ui/DatePicker'
-import { useState, useEffect, useRef, useContext } from 'react'
+import Select from '../../components/ui/Select'
+import Input from '../../components/ui/Input'
+import Button from '../../components/ui/Button'
+import DatePicker from '../../components/ui/DatePicker'
+import { useState, useEffect, useRef } from 'react'
 import { useFetching } from '../../hooks/useFetching'
 import DsuService from '../../api/DsuService'
 import { Controller, useForm } from 'react-hook-form';
 import EmployeeService from '../../api/EmployeeService'
-import { AuthContext } from '../../context'
 import ExamenService from '../../api/ExamenService'
 
-const EditExamenForm = ({ examData, onSubmit }) => {
+const CreateExamenForm = ({onSubmit}) => {
     const teacherSelectRef = useRef(null)
     const auditoriumSelectRef = useRef(null)
-    const filialSelectRef = useRef(null)
     const facultySelectRef = useRef(null)
     const departmentSelectRef = useRef(null)
     const courseSelectRef = useRef(null)
@@ -21,33 +19,12 @@ const EditExamenForm = ({ examData, onSubmit }) => {
     const edukindSelectRef = useRef(null)
     const disciplineSelectRef = useRef(null)
     const disciplineInputRef = useRef(null)
-    const isManualRef = useRef(null)
     const retakeSelectRef = useRef(null)
-
-    const {employeeId} = useContext(AuthContext)
-
-    const { control, handleSubmit, setValue, getValues, watch } = useForm({
-        mode: "onSubmit",
-        defaultValues: {
-            examDurationInMitutes: examData.examDurationInMitutes,
-            examDate: examData && new Date(examData.examDate)
-        }
-    })
-
-    const watchIsEnterDisciplineManual = watch("isEnterDisciplineManual", false)
-
-    const setSelectDefaultValue = (selectRef, name, value, dataArr) => {
-        selectRef.current.setValue(dataArr.find(d => d.value == value), "onChange")
-        setValue(name, value)
-    }
 
     const resetSelectValue = (selectRef, setOptionsState = null) => {
         selectRef.current.setValue(null, "onChange")
         setOptionsState && setOptionsState([])
     }
-
-
-    const [flagSetDefaultValues, setFlagSetDefaultValues] = useState(false)
 
     const [retakes, setRetakes] = useState([])
     const [getRetakes, isRetakesLoading] = useFetching(async () => {
@@ -57,12 +34,6 @@ const EditExamenForm = ({ examData, onSubmit }) => {
             label: dataItem.description
         }))
         setRetakes(data)
-
-        if (!flagSetDefaultValues) {
-            const defaultRetake = data.find(d => d.label == examData.retake)
-            retakeSelectRef.current.setValue(defaultRetake, "onChange")
-            setValue("retake", defaultRetake.value)
-        }
     })
 
     const [teachers, setTeachers] = useState([])
@@ -73,10 +44,6 @@ const EditExamenForm = ({ examData, onSubmit }) => {
             label: `${dataItem.lastname} ${dataItem.firstname} ${dataItem.patr}`
         }))
         setTeachers(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(teacherSelectRef, "teacherId", examData.teacherId, data)
-        }
     })
 
     const [auditoriums, setAuditoriums] = useState([])
@@ -86,12 +53,7 @@ const EditExamenForm = ({ examData, onSubmit }) => {
             value: dataItem.id,
             label: dataItem.name
         }))
-
         setAuditoriums(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(auditoriumSelectRef, "auditoriumId", examData.auditoriumId, data)
-        }
     })
 
     const [filials, setFilials] = useState([])
@@ -102,239 +64,153 @@ const EditExamenForm = ({ examData, onSubmit }) => {
             value: dataItem.filId,
             label: dataItem.filial
         }))
-
         setFilials(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(filialSelectRef, "filialId", examData.filialId, data)
-        }
-    })
-
-    const [faculties, setFaculties] = useState([])
-    const [facultyId, setFacultyId] = useState(examData.facultyId)
-    const [getFaculties, isFacultiesLoading] = useFetching(async () => {
-        const response = await DsuService.getFaculties()
-        const data = response.data.map(dataItem => ({
-            value: dataItem.facId,
-            label: dataItem.facName
-        }))
-
-        setFaculties(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(facultySelectRef, "facultyId", examData.facultyId, data)
-        }
     })
 
     useEffect(() => {
         getTeachers()
         getEmployees()
         getFilials()
-            .then(() => getFaculties())
-            .then(() => getDepartments(examData.facultyId))
-            .then(() => getCourses(examData.departmentId, examData.filialId))
-            .then(() => getGroups(examData.departmentId, examData.course, examData.filialId))
-            .then(() => getEdukinds())
-            .then(() => getDisciplines(examData.departmentId, examData.course, examData.group, examData.edukind?.edukindId, examData.filialId))
-            .then(() => getRetakes())
-            .then(() => setFlagSetDefaultValues(true))
+        getEdukinds()
+        getRetakes()
     }, [])
 
-    useEffect(() => {
-        if (flagSetDefaultValues) {
-            if (filialId) {
-                resetSelectValue(facultySelectRef, setFaculties)
-                resetSelectValue(departmentSelectRef, setDepartments)
-                resetSelectValue(courseSelectRef, setCourses)
-                resetSelectValue(groupSelectRef, setGroups)
-                resetSelectValue(edukindSelectRef)
-                resetSelectValue(disciplineSelectRef, setDisciplines)
+    const [faculties, setFaculties] = useState([])
+    const [facultyId, setFacultyId] = useState(null)
+    const [getFaculties, isFacultiesLoading] = useFetching(async () => {
+        const response = await DsuService.getFaculties()
+        const data = response.data.map(dataItem => ({
+            value: dataItem.facId,
+            label: dataItem.facName
+        }))
+        setFaculties(data)
+    })
 
-                getFaculties()
-            }
+    useEffect(() => {
+        if (filialId) {
+            resetSelectValue(facultySelectRef, setFaculties)
+            resetSelectValue(departmentSelectRef, setDepartments)
+            resetSelectValue(courseSelectRef, setCourses)
+            resetSelectValue(groupSelectRef, setGroups)
+            resetSelectValue(edukindSelectRef)
+            resetSelectValue(disciplineSelectRef, setDisciplines)
+            resetSelectValue(retakeSelectRef)
+
+            getFaculties()
         }
     }, [filialId])
 
 
     const [departments, setDepartments] = useState([])
-    const [departmentId, setDepartmentId] = useState(examData.departmentId)
+    const [departmentId, setDepartmentId] = useState(null)
     const [getDepartments, isDepartmentsLoading] = useFetching(async (id) => {
         const response = await DsuService.getCaseSDepartmentByFacultyId(id)
         const data = response.data.map(dataItem => ({
             value: dataItem.departmentId,
-            label: dataItem.deptName,
+            label: dataItem.deptName
         }))
-
         setDepartments(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(departmentSelectRef, "departmentId", examData.departmentId, data)
-        }
     })
-
     useEffect(() => {
-        if (flagSetDefaultValues) {
-            if (facultyId) {
-                resetSelectValue(departmentSelectRef, setDepartments)
-                resetSelectValue(courseSelectRef, setCourses)
-                resetSelectValue(groupSelectRef, setGroups)
-                resetSelectValue(edukindSelectRef)
-                resetSelectValue(disciplineSelectRef, setDisciplines)
+        resetSelectValue(departmentSelectRef, setDepartments)
+        resetSelectValue(courseSelectRef, setCourses)
+        resetSelectValue(groupSelectRef, setGroups)
+        resetSelectValue(edukindSelectRef)
+        resetSelectValue(disciplineSelectRef, setDisciplines)
+        resetSelectValue(retakeSelectRef)
 
-                getDepartments(facultyId)
-            }
-        }
+        getDepartments(facultyId)
     }, [facultyId])
 
     const [courses, setCourses] = useState([])
-    const [course, setCourse] = useState(examData.course)
+    const [course, setCourse] = useState(null)
     const [getCourses, isCoursesLoading] = useFetching(async (id, filialId) => {
         const response = await DsuService.getCourseByDepartmentId(id, filialId)
         const data = response.data.sort((a, b) => a - b).map(dataItem => ({
             value: dataItem,
             label: dataItem
         }))
-
         setCourses(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(courseSelectRef, "course", examData.course, data)
-        }
     })
-    useEffect(() => {
-        if (flagSetDefaultValues) {
-            if (departmentId) {
-                if (flagSetDefaultValues) {
-                    resetSelectValue(courseSelectRef, setCourses)
-                    resetSelectValue(groupSelectRef, setGroups)
-                    resetSelectValue(edukindSelectRef)
-                    resetSelectValue(disciplineSelectRef, setDisciplines)
 
-                    getCourses(departmentId, filialId)
-                }
-            }
+    useEffect(() => {
+        if (departmentId) {
+            resetSelectValue(courseSelectRef, setCourses)
+            resetSelectValue(groupSelectRef, setGroups)
+            resetSelectValue(edukindSelectRef)
+            resetSelectValue(disciplineSelectRef, setDisciplines)
+            resetSelectValue(retakeSelectRef)
+
+            getCourses(departmentId, filialId)
         }
     }, [departmentId])
 
     const [groups, setGroups] = useState([])
-    const [group, setGroup] = useState(examData.nGroup)
+    const [group, setGroup] = useState(null)
     const [getGroups, isGroupsLoading] = useFetching(async (id, nCourse, filialId) => {
         const response = await DsuService.getGroupsByDepartmentIdAndCourse(id, nCourse, filialId)
         const data = response.data.map(dataItem => ({
             value: dataItem,
             label: dataItem
         }))
-
         setGroups(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(groupSelectRef, "nGroup", examData.nGroup, data)
-        }
     })
     useEffect(() => {
-        if (flagSetDefaultValues) {
-            if (course) {
-                if (flagSetDefaultValues) {
-                    resetSelectValue(groupSelectRef, setGroups)
-                    resetSelectValue(edukindSelectRef)
-                    resetSelectValue(disciplineSelectRef, setDisciplines)
+        if (course) {
+            resetSelectValue(groupSelectRef, setGroups)
+            resetSelectValue(edukindSelectRef)
+            resetSelectValue(disciplineSelectRef, setDisciplines)
+            resetSelectValue(retakeSelectRef)
 
-                    getGroups(departmentId, course, filialId)
-                }
-            }
+            getGroups(departmentId, course, filialId)
         }
     }, [course])
 
     const [edukinds, setEdukinds] = useState([])
-    const [edukind, setEdukind] = useState(examData.edukindId)
+    const [edukind, setEdukind] = useState(null)
     const [getEdukinds, isEdukindsLoading] = useFetching(async () => {
         const response = await DsuService.getEdukinds()
         const data = response.data.map(dataItem => ({
             value: dataItem.edukindId,
             label: dataItem.edukind
         }))
-
         setEdukinds(data)
-
-        if (!flagSetDefaultValues) {
-            setSelectDefaultValue(edukindSelectRef, "edukindId", examData.edukindId, data)
-        }
     })
 
     useEffect(() => {
-        if (flagSetDefaultValues) {
-            resetSelectValue(edukindSelectRef)
-            resetSelectValue(disciplineSelectRef, setDisciplines)
-        }
+        resetSelectValue(edukindSelectRef)
+        resetSelectValue(disciplineSelectRef, setDisciplines)
+        resetSelectValue(retakeSelectRef)
     }, [group])
-
-    useEffect(() => {
-        if (flagSetDefaultValues) {
-            getEdukinds()
-        }
-
-        if (!examData.edukind) {
-            isManualRef.current.checked = true
-            setValue("isEnterDisciplineManual", true)
-
-            disciplineInputRef.current.value = examData.discipline
-            setValue("disciplineManual", examData.discipline)
-        }
-    }, [])
 
     const [disciplines, setDisciplines] = useState([])
     const [getDisciplines, isDisciplinesLoading] = useFetching(async (departmentId, course, group, edukind, filialId) => {
-        if (typeof edukind === "undefined") return
-
         const response = await DsuService.getDisciplinesWithFilter(departmentId, course, group, edukind, filialId)
-        const dataArr = []
-
-        let isDefaultValueInArray = false
-        if (response.data.length > 0) {
-            response.data.forEach(dataItem => {
-                if (dataItem.predmet == examData.discipline) {
-                    isDefaultValueInArray = true
-                }
-
-                dataArr.push({
-                    value: dataItem.disciplineId,
-                    label: dataItem.predmet
-                })
-            })
-        }
-
-        setDisciplines(dataArr)
-        if (!flagSetDefaultValues) {
-            if (isDefaultValueInArray) {
-                setSelectDefaultValue(disciplineSelectRef, "discipline", dataArr.find(d => d.label == examData.discipline).value, dataArr)
-            } else {
-                isManualRef.current.checked = true
-                setValue("isEnterDisciplineManual", true)
-
-                disciplineInputRef.current.value = examData.discipline
-                setValue("disciplineManual", examData.discipline)
-            }
-        }
+        const data = response.data.map(dataItem => ({
+            value: dataItem.disciplineId,
+            label: dataItem.predmet
+        }))
+        setDisciplines(data)
     })
-
     useEffect(() => {
-        const { filialId: filialIdValue, departmentId: departmentIdValue, course: courseValue, nGroup: groupValue, edukindId: edukindIdValue } = getValues()
-        if (filialIdValue && departmentIdValue && courseValue && groupValue && edukindIdValue) {
-            if (flagSetDefaultValues) {
-                resetSelectValue(disciplineSelectRef, setDisciplines)
-
-                getDisciplines(departmentId, course, group, edukind, filialId)
-            }
+        const { departmentId: departmentIdValue, course: courseValue, nGroup: groupValue, edukindId: edukindIdValue } = getValues()
+        if (departmentIdValue && courseValue && groupValue && edukindIdValue) {
+            resetSelectValue(disciplineSelectRef, setDisciplines)
+            getDisciplines(departmentId, course, group, edukind, filialId)
         }
     }, [departmentId, course, group, edukind])
 
+    const { control, handleSubmit, getValues, watch } = useForm({
+        mode: "onSubmit",
+        defaultValues: {
+            examDate: new Date()
+        }
+    })
+
+    const watchIsEnterDisciplineManual = watch("isEnterDisciplineManual", false)
+
     const handleSubmitForm = (data) => {
-        data.endExamDate = examData.endExamDate
-        data.id = examData.id
         data.isDeleted = false
-        data.tickets = examData.tickets
-        data.isInArchive = examData.isInArchive
-        data.employeeId = employeeId
 
         if (data.isEnterDisciplineManual) {
             data.discipline = disciplineInputRef.current.value
@@ -407,7 +283,6 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                     render={({ field: { onChange }, fieldState: { error } }) => (
                         <div className={error ? 'error' : ''}>
                             <Select
-                                ref={filialSelectRef}
                                 onChange={(newValue) => { setFilialId(newValue.value); onChange(newValue.value) }}
                                 placeholder='Выберите филиал'
                                 options={filials}
@@ -575,7 +450,6 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                     name="isEnterDisciplineManual"
                     render={({ field: { onChange }, fieldState: { error } }) => (
                         <Input
-                            ref={isManualRef}
                             type="checkbox"
                             className={`form__input ${error ? " error" : ""}`}
                             onChange={(newValue) => { onChange(newValue.target.checked) }}
@@ -605,7 +479,7 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                     )}
                 />
             </label>
-            <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <label className='form__label'>
                 <span className='form__text'>Дата</span>
                 <Controller
                     control={control}
@@ -620,7 +494,7 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                     )}
                 />
             </label>
-            <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <label className='form__label'>
                 <span className='form__text'>Длительность в минутах</span>
 
                 <Controller
@@ -629,10 +503,9 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                     rules={{
                         required: true
                     }}
-                    render={({ field: { value, onChange }, fieldState: { error } }) => (
+                    render={({ field: { onChange }, fieldState: { error } }) => (
                         <Input
                             type="number"
-                            value={value}
                             className={`form__input${error ? ' error' : ''}`}
                             onChange={(newValue) => { onChange(newValue) }}
                         />
@@ -640,10 +513,14 @@ const EditExamenForm = ({ examData, onSubmit }) => {
                 />
             </label>
             <label className="form__label">
-                <Button className='form__btn-questions btn'>Изменить вопросы</Button>
+                <Button className='form__btn-questions btn'>Загрузить вопросы</Button>
             </label>
+            <div className='form__btns'>
+                {/* <Button>Создать экзамен</Button>
+            <Link to='/teacher/examens' className='cancel__btn btn'>Отмена</Link> */}
+            </div>
         </form>
     )
 }
 
-export default EditExamenForm
+export default CreateExamenForm

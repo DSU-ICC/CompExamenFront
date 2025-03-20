@@ -1,7 +1,23 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import EditExamenForm from '../../components/common/EditExamenForm'
+import { useFetching } from '../../hooks/useFetching'
+import ExamenService from '../../api/ExamenService'
+import { useEffect, useState } from 'react'
 
 const EditExamenForUko = () => {
+    const data = useLocation()
+    const examenId = data.state
+
+    const [examData, setExamData] = useState(null)
+    const [getExamenById, isExamenLoading] = useFetching(async (examenId) => {
+        const response = await ExamenService.getExamenById(examenId)
+        setExamData(response.data)
+    })
+
+    useEffect(() => {
+        getExamenById(examenId)
+    }, [])
+
     const redirect = useNavigate()
 
     const onSubmit = (data) => {     
@@ -23,7 +39,12 @@ const EditExamenForUko = () => {
                         </Link>
                     </div>
                     <h1 className="create-examen__title title">Редактирование экзамена</h1>
-                    <EditExamenForm onSubmit={onSubmit} />
+                    {
+                        isExamenLoading 
+                            ? <div className='loader'>Идет загрузка экзамена...</div>
+                            : (examData && <EditExamenForm examData={examData} onSubmit={onSubmit} />)
+                    }
+                    
                 </div>
             </div>
         </section>

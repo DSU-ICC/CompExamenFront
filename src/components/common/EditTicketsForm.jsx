@@ -1,22 +1,14 @@
 import TextArea from '../ui/TextArea'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import TicketService from '../../api/TicketService'
 import QuestionService from '../../api/QuestionService'
-import { useContext, useState } from 'react'
-import { AuthContext } from '../../context'
+import { useState } from 'react'
 
-const EditTicketsForm = ({ backLink, onSubmit, isLoading, ticketsData }) => {
-  const data = useLocation()
-  const examData = data.state
-
-  const redirect = useNavigate();
-
-  const { employeeId } = useContext(AuthContext)
-
-  const [tickets, setTickets] = useState(ticketsData)
+const EditTicketsForm = ({ backLink, onSubmit, isLoading, examData }) => {
+  const [tickets, setTickets] = useState(examData.tickets)
   const [questionIdLoading, setQuestionLoadingId] = useState(null)
   const [ticketIdLoading, setTicketIdLoading] = useState(null)
 
@@ -42,9 +34,7 @@ const EditTicketsForm = ({ backLink, onSubmit, isLoading, ticketsData }) => {
     let isFormValid = validateQuestions()
 
     if (isFormValid) {
-      examData.employeeId = employeeId
-      examData.tickets = tickets
-      onSubmit(examData)
+      onSubmit(tickets)
     } else {
       alert("Некоторые поля вопросов не заполнены!")
     }
@@ -244,10 +234,10 @@ const EditTicketsForm = ({ backLink, onSubmit, isLoading, ticketsData }) => {
       }
       <div className='btns'>
         <Button onClick={() => appendTicket(examData.id, tickets.length)} className='ticket-item__add'>Добавить билет</Button>
-        <Button onClick={() => handleSubmit()} className={`${isLoading ? 'loading' : ''}`} disabled={isLoading}>
+        <Button onClick={handleSubmit} className={`${isLoading ? 'loading' : ''}`} disabled={isLoading}>
           <span>Завершить редактирование</span>
         </Button>
-        <Button onClick={() => redirect(backLink)} className='cancel__btn btn'>Отмена</Button>
+        <Link to={backLink} className='cancel__btn btn'>Отмена</Link>
       </div>
     </ul>
   )

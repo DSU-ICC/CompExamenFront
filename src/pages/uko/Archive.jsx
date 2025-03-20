@@ -11,8 +11,6 @@ import { Link } from "react-router-dom";
 
 const Archive = () => {
     const departmentSelectRef = useRef(null)
-    const datePickerStartDateRef = useRef(null)
-    const datePickerEndDateRef = useRef(null)
 
     const [filials, setFilials] = useState([])
     const [getFilials, isFilialsLoading, filError] = useFetching(async () => {
@@ -80,15 +78,12 @@ const Archive = () => {
     })
 
     const { control, handleSubmit } = useForm({
-        mode: "onSubmit"
+        mode: "onSubmit",
+        defaultValues: {
+            startDate: new Date(new Date().setHours(0, 0, 0)),
+            endDate: new Date(new Date().setHours(0, 0, 0))
+        }
     })
-
-    const handleSubmitArchive = (data) => {
-        data.startDate = datePickerStartDateRef.current.props.selected
-        data.endDate = datePickerEndDateRef.current.props.selected
-
-        getExamensFromArchive(data)
-    }
 
     return (
         <section className='archive'>
@@ -102,7 +97,7 @@ const Archive = () => {
                     </Link>
                 </div>
                 <h2 className="archive__title title">Архив</h2>
-                <form className='archive__form form' style={{ marginBottom: 20 }} onSubmit={handleSubmit(handleSubmitArchive)}>
+                <form className='archive__form form' style={{ marginBottom: 20 }} onSubmit={handleSubmit(getExamensFromArchive)}>
                     <label className='form__label'>
                         <span className='form__text'>Филиал</span>
                         <Controller
@@ -163,12 +158,12 @@ const Archive = () => {
                         <Controller
                             control={control}
                             name='startDate'
-                            render={({ field: { onChange } }) => (
+                            render={({ field: { value, onChange } }) => (
                                 <div className="form__label--start-date">
                                     <DatePicker
-                                        ref={datePickerStartDateRef}
+                                        value={value}
+                                        onChange={onChange}
                                         showTimeSelect={false}
-                                        onChange={(newDate) => onChange(newDate)}
                                     />
                                 </div>
                             )}
@@ -179,12 +174,12 @@ const Archive = () => {
                         <Controller
                             control={control}
                             name='endDate'
-                            render={({ field: { onChange } }) => (
+                            render={({ field: { value, onChange } }) => (
                                 <div className="form__label--end-date">
                                     <DatePicker
-                                        ref={datePickerEndDateRef}
+                                        value={value}
+                                        onChange={onChange}
                                         showTimeSelect={false}
-                                        onChange={(newDate) => onChange(newDate)}
                                     />
                                 </div>
                             )}

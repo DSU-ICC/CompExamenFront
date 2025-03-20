@@ -80,7 +80,7 @@ const UkoPage = () => {
 
   const handleEditExamen = () => {
     redirect('/uko/edit-examen', {
-      state: examens.find(e => e.examenId == examenId)
+      state: examenId
     })
   }
 
@@ -89,10 +89,8 @@ const UkoPage = () => {
     setModalDeleteConfirmActive(true)
   }
 
-  const datePickerCopyRef = useRef(null)
-
-  const onCopyExamen = () => {
-    const examDate = datePickerCopyRef.current.props.selected
+  const onCopyExamen = (data) => {
+    const examDate = data.copyExamDate
     copyExamen(examenId, examDate)
   }
 
@@ -105,7 +103,10 @@ const UkoPage = () => {
   })
 
   const { control: controlCopy, handleSubmit: handleSubmitCopy } = useForm({
-    mode: "onSubmit"
+    mode: "onSubmit",
+    defaultValues: {
+      copyExamDate: new Date()
+    }
   })
 
   const [filials, setFilials] = useState([])
@@ -150,7 +151,6 @@ const UkoPage = () => {
   })
   
   const onExamenFilter = (data) => {
-    console.log(data.startDate)
     let filteredExamens = examens
     if (data.filialId) {
       filteredExamens = filteredExamens.filter(e => ((e.filial == null && data.filialId == 1) || e.filial?.filId == data.filialId))
@@ -348,7 +348,10 @@ const UkoPage = () => {
               render={({ field: { onChange }, fieldState: { error } }) => (
                 <div className={error ? 'error' : ''}>
                   <Select
-                    onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    onChange={(newValue) => { 
+                      setExamenId(newValue?.value); 
+                      onChange(newValue?.value) 
+                    }}
                     placeholder='Выберите экзамен'
                     options={examensForSelect}
                     isLoading={isExamensLoading}
@@ -361,14 +364,13 @@ const UkoPage = () => {
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
             <span className='form__text'>Дата</span>
             <Controller
-              control={control}
+              control={controlCopy}
               name='copyExamDate'
-              render={({ field: { onChange }, fieldState: { errors } }) => (
+              render={({ field: { value, onChange }, fieldState: { errors } }) => (
                 <div className={errors?.root?.message ? ' error' : ''}>
                   <DatePicker
-                    ref={datePickerCopyRef}
-                    selected={copyExamenDate}
-                    onChange={(newDate) => onChange(newDate)}
+                    value={value}
+                    onChange={onChange}
                   />
                   <div>{errors ? errors.root?.message : ""}</div>
                 </div>
