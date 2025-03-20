@@ -25,7 +25,6 @@ const UkoPage = () => {
   const [modalDeleteConfirmActive, setModalDeleteConfirmActive] = useState(false)
   const [modalCopyActive, setModalCopyActive] = useState(false)
   const [examenId, setExamenId] = useState(null)
-  const [copyExamenDate, setCopyExamenDate] = useState(new Date())
 
   const filialSelectForFilterRef = useRef(null)
   const facultySelectForFilterRef = useRef(null)
@@ -72,7 +71,6 @@ const UkoPage = () => {
 
     if (response.status == 200) {
       alert("Пересдача успешно создана!")
-      setCopyExamenDate(new Date())
       setExamenId(null)
       setModalCopyActive(false)
     }

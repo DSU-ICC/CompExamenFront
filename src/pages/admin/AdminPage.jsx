@@ -95,8 +95,6 @@ const AdminPage = () => {
       alert("Сброс экзамена студенту успешно завершен")
       setModalResetStudentConfirmActive(false)
       setExamenId(null)
-      // setStudentId(null)
-      // setIsRemoveAnswerBlank(false)
     }
   })
 
@@ -120,9 +118,8 @@ const AdminPage = () => {
     setModalDeleteConfirmActive(true)
   }
 
-  const onCopyExamen = () => {
-    let dateInput = document.querySelector(".datepicker")
-    const examDate = parsingDate(dateInput.value)
+  const onCopyExamen = (data) => {
+    const examDate = data.copyExamDate
     copyExamen(examenId, examDate)
   }
 
@@ -154,7 +151,10 @@ const AdminPage = () => {
   })
 
   const { control: controlCopy, handleSubmit: handleSubmitCopy } = useForm({
-    mode: "onSubmit"
+    mode: "onSubmit",
+    defaultValues: {
+      copyExamDate: new Date()
+    }
   })
 
   const { control: controlResetExamenForStudent, handleSubmit: handleSubmitResetExamenForStudent, getValues: getResetExamenForStudentData } = useForm({
@@ -391,13 +391,13 @@ const AdminPage = () => {
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
             <span className='form__text'>Дата</span>
             <Controller
-              control={control}
+              control={controlCopy}
               name='copyExamDate'
-              render={({ field: { onChange }, fieldState: { errors } }) => (
+              render={({ field: { value, onChange }, fieldState: { errors } }) => (
                 <div className={errors?.root?.message ? ' error' : ''}>
                   <DatePicker
-                    selected={copyExamenDate}
-                    onChange={(newDate) => onChange(newDate)}
+                    value={value}
+                    onChange={onChange}
                   />
                   <div>{errors ? errors.root?.message : ""}</div>
                 </div>
