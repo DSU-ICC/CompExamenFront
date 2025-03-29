@@ -217,4 +217,15 @@ export default class ExamenService {
         })
         return response;
     }
+
+    static async getStatisticForPrint(examenId) {
+        const response = await axios.get(`${API_URL}/Examen/GetStatisticForPrint`, {
+            params: {examenId},
+            headers: {
+                "Authorization": `Bearer ${getToken()}`
+            },
+            withCredentials: true
+        })
+        return response
+    }
 }

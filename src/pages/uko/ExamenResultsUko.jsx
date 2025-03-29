@@ -4,7 +4,6 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import {formatDate} from '../../utils/date'
-import { getExamenSeason, getExamenYears } from '../../utils/statement'
 import Button from '../../components/ui/Button'
 import { printElement } from '../../utils/print'
 
@@ -14,7 +13,7 @@ const ExamenResultsUko = () => {
   const { course, group, deptName, examenName, examDate } = data.state
 
   const [studentsScore, setStudentsScore] = useState([])
-  const [getStudentsScore, isScoreLoading, scoreError] = useFetching(async (examenId) => {
+  const [getStudentsScore, isScoreLoading] = useFetching(async (examenId) => {
     const response = await ExamenService.getStudentsByExamenId(examenId)
 
     if (response.status == 200) {
@@ -22,7 +21,7 @@ const ExamenResultsUko = () => {
     }
   })
 
-  const [generateReport, isGenerateLoading, generateErr] = useFetching(async (examenId) => {
+  const [generateReport, isGenerateLoading] = useFetching(async (examenId) => {
     const response = await ExamenService.generateExcelFile(examenId)
 
     if (response.status == 200) {
@@ -30,9 +29,18 @@ const ExamenResultsUko = () => {
     }
   })
 
+  const [statisticForPrint, setStatisticForPrint] = useState(null)
+  const [getStatisticForPrint, isStatisticForPrintLoading] = useFetching(async (examenId) => {
+    const response = await ExamenService.getStatisticForPrint(examenId)
+    if (response.status == 200) {
+      setStatisticForPrint(response.data)
+    }
+  })
+
 
   useEffect(() => {
     getStudentsScore(id)
+    getStatisticForPrint(id)
   }, [])
 
   return (
@@ -42,8 +50,8 @@ const ExamenResultsUko = () => {
           <div className="statement__header statement-header">
             <div className="statement-header__data">
               <span className='statement-header__data-item statement-header__data-item_study-year'><strong>Учебный год</strong></span>
-              <span className='statement-header__data-item statement-header__data-item_years'><strong>{getExamenYears()}</strong></span>
-              <span className='statement-header__data-item statement-header__data-item_season'>{getExamenSeason(examDate)}</span>
+              <span className='statement-header__data-item statement-header__data-item_years'><strong>{statisticForPrint?.academicYear}</strong></span>
+              <span className='statement-header__data-item statement-header__data-item_season'>{statisticForPrint?.session}</span>
             </div>
             <div className="statement-header__captions">
               <h1 className="statement-header__title"><strong>МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ</strong></h1>
@@ -54,31 +62,31 @@ const ExamenResultsUko = () => {
             <ul className="statement-body__list">
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Факультет/институт:</strong></p>
-                <p className='statement-info__value'>{studentsScore[0]?.faculty?.facName}</p>
+                <p className='statement-info__value'>{statisticForPrint?.faculty}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Направление/специальность:</strong></p>
-                <p className='statement-info__value'>{deptName}</p>
+                <p className='statement-info__value'>{statisticForPrint?.department}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Курс:</strong></p>
-                <p className='statement-info__value'>{course}</p>
+                <p className='statement-info__value'>{statisticForPrint?.course}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Группа:</strong></p>
-                <p className='statement-info__value'>{group}</p>
+                <p className='statement-info__value'>{statisticForPrint?.nGroup}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Дисциплина:</strong></p>
-                <p className='statement-info__value'>{examenName}</p>
+                <p className='statement-info__value'>{statisticForPrint?.discipline}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Преподаватель:</strong></p>
-                <p className='statement-info__value'>{studentsScore[0]?.fioTeacher}</p>
+                <p className='statement-info__value'>{statisticForPrint?.teacher}</p>
               </li>
               <li className="statement-body__item statement-info">
                 <p className='statement-info__name'><strong>Дата проведения:</strong></p>
-                <p className='statement-info__value'>{formatDate(new Date(examDate))}</p>
+                <p className='statement-info__value'>{formatDate(new Date(statisticForPrint?.examDate))}</p>
               </li>
             </ul>
           </div>
@@ -95,17 +103,15 @@ const ExamenResultsUko = () => {
               </thead>
               <tbody>
                 {
-                  !isScoreLoading
-                  &&
-                    studentsScore.map((student, idx) => (
-                      <tr key={idx}>
-                        <td>{idx + 1}</td>
-                        <td>{`${student.firstName} ${student.lastName} ${student.patr}`}</td>
-                        <td>{(student.answerBlank != null && student.answerBlank?.totalScore != null) ? student.answerBlank.totalScore : " - "}</td>
-                        <td>{(student.answerBlank != null && student.answerBlank?.createDateTime != null) ? formatDate(new Date(student.answerBlank.createDateTime)) : " - "}</td>
-                        <td>{(student.answerBlank != null && student.answerBlank?.endExamenDateTime != null) ? formatDate(new Date(student.answerBlank.endExamenDateTime)) : " - "}</td>
-                      </tr>
-                    ))
+                  statisticForPrint?.statisticsStudentForPrints.map((student, idx) => (
+                    <tr key={idx}>
+                      <td>{idx + 1}</td>
+                      <td>{student.fio}</td>
+                      <td>{student.totalScore || " - "}</td>
+                      <td>{student.beginDate ? formatDate(new Date(student.beginDate)) : " - "}</td>
+                      <td>{student.endDate ? formatDate(new Date(student.endDate)) : " - "}</td>
+                    </tr>
+                  ))               
                 }
               </tbody>
             </table>
@@ -128,7 +134,9 @@ const ExamenResultsUko = () => {
             <span className='data__department'>{deptName}</span>
           </div>
           <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-            <Button onClick={() => printElement(".statement")}>Распечатать ведомость</Button>
+            <Button disabled={isStatisticForPrintLoading} className={`${isStatisticForPrintLoading ? " loading" : ""}`} onClick={() => printElement(".statement")}>
+              {isStatisticForPrintLoading ? "Загрузка данных" : "Распечатать ведомость"}
+            </Button>
             <Button onClick={() => generateReport(id)} className={`${isGenerateLoading ? " loading" : ""}`} disabled={isGenerateLoading}>{isGenerateLoading ? "Генерация..." : "Сгенерировать отчет об успеваемости"}</Button>
           </div>
           {isScoreLoading ? <div className='loader'>Идет загрузка результатов...</div> : <StudentScoreListUko deptName={deptName} scores={studentsScore} />}
