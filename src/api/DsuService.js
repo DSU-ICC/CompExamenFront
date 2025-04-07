@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "./config";
+import { API_URL,getToken } from "./config";
 
 export default class DsuService {
     static async getEdukinds() {
@@ -43,7 +43,7 @@ export default class DsuService {
         })
         return response;
     }
-    
+
     static async getGroupsByDepartmentIdAndCourse(id, nCourse, filialId) {
         const response = await axios.get(`${API_URL}/Dsu/GetGroupsByDepartmentIdAndCourse`, {
             params: {
@@ -84,7 +84,11 @@ export default class DsuService {
     }
 
     static async getTeachers() {
-        const response = await axios.get(`${API_URL}/Dsu/GetTeachers`)
+        const response = await axios.get(`${API_URL}/Dsu/GetTeachers`, {
+            headers: {
+                "Authorization": `Bearer ${getToken()}`
+            },
+        })
         return response;
     }
 
