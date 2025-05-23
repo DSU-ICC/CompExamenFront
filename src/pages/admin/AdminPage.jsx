@@ -5,11 +5,13 @@ import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import Select from '../../components/ui/Select'
 import { Link, useNavigate } from 'react-router-dom'
-import { parsingDate } from '../../utils/date'
+import { formatDate, parsingDate } from '../../utils/date'
 import { Controller, useForm } from 'react-hook-form';
 import DatePicker from '../../components/ui/DatePicker'
 import Input from '../../components/ui/Input'
 import AnswerBlankService from '../../api/AnswerBlankService'
+import { components } from "react-select"
+import DsuService from '../../api/DsuService'
 
 
 const AdminPage = () => {
@@ -29,17 +31,21 @@ const AdminPage = () => {
   const [studentsForSelect, setStudentsForSelect] = useState([])
   const [copyExamenDate, setCopyExamenDate] = useState(new Date())
 
-  const [getExamens, isExamensLoading, examError] = useFetching(async () => {
-    const response = await ExamenService.getExamens()
+  const [getExamens, isExamensLoading] = useFetching(async () => {
+    const responseFilials = await DsuService.getFilials()
+    const responseExamens = await ExamenService.getExamens()
 
-    if (response.status == 200) {
-      setExamens(response.data)
+    if (responseExamens.status == 200) {
+      setExamens(responseExamens.data)
 
       const dataArr = []
-      response.data.forEach(dataItem => {
+      responseExamens.data.forEach(dataItem => {
+        const filialName = responseFilials.data?.find(x => x.filId == dataItem.filialId)?.filial
+
         dataArr.push({
           value: dataItem.id,
-          label: dataItem.discipline
+          label: dataItem.discipline,
+          title: `Филиал - ${filialName}\r\nДата проведения: ${formatDate(new Date(dataItem.examDate))}\r\nКурс: ${dataItem.course}\r\nГруппа: ${dataItem.nGroup}`
         })
       })
       setExamensForSelect(dataArr)
@@ -169,6 +175,16 @@ const AdminPage = () => {
     mode: "onSubmit"
   })
 
+  const CustomOption = (props) => {
+    return (
+      <components.Option {...props}>
+        <div title={props.data.title}>
+          {props.children}
+        </div>
+      </components.Option>
+    );
+  };
+
   return (
     <>
       <div className="container">
@@ -197,6 +213,9 @@ const AdminPage = () => {
                   <Select
                     onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
                     placeholder='Выберите экзамен'
+                    components={{
+                      Option: CustomOption
+                    }}
                     options={examensForSelect}
                     isLoading={isExamensLoading}
                     isDisabled={isExamensLoading}
@@ -223,6 +242,9 @@ const AdminPage = () => {
                 <div className={error ? 'error' : ''}>
                   <Select
                     onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    components={{
+                      Option: CustomOption
+                    }}
                     placeholder='Выберите экзамен'
                     options={examensForSelect}
                     isLoading={isExamensLoading}
@@ -257,6 +279,9 @@ const AdminPage = () => {
                 <div className={error ? 'error' : ''}>
                   <Select
                     onChange={(newValue) => { getStudentsByExamenId(newValue.value); onChange(newValue.value) }}
+                    components={{
+                      Option: CustomOption
+                    }}
                     placeholder='Выберите экзамен'
                     options={examensForSelect}
                     isLoading={isExamensLoading}
@@ -345,6 +370,9 @@ const AdminPage = () => {
                 <div className={error ? 'error' : ''}>
                   <Select
                     onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    components={{
+                      Option: CustomOption
+                    }}
                     placeholder='Выберите экзамен'
                     options={examensForSelect}
                     isLoading={isExamensLoading}
@@ -379,6 +407,9 @@ const AdminPage = () => {
                 <div className={error ? 'error' : ''}>
                   <Select
                     onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
+                    components={{
+                      Option: CustomOption
+                    }}
                     placeholder='Выберите экзамен'
                     options={examensForSelect}
                     isLoading={isExamensLoading}
@@ -406,7 +437,6 @@ const AdminPage = () => {
           </label>
           <Button className={`${isCopyLoading ? ' loading' : ''}`} disabled={isCopyLoading}><span>Создать</span></Button>
         </form>
-
       </Popup>
     </>
   )
