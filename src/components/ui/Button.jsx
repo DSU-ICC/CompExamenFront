@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 
 const Button = forwardRef(({ className, children, ...props}, ref) => {
     const defaultClassName = 'btn'

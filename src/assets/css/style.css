@@ -691,13 +691,18 @@ main {
     padding: 16px 34px;
 }
 
-.edit-examen {
-    background-color: #10cf50;
+.edit-examen,
+.delete-examen,
+.copy-examen {
     height: 60px;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.edit-examen {
+    background-color: #10cf50;
 }
 
 .edit-examen::before {
@@ -715,11 +720,6 @@ main {
 
 .delete-examen {
     background-color: #ec071e;
-    height: 60px;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .delete-examen::before {
@@ -733,6 +733,15 @@ main {
 
 .delete-examen:hover {
     background-color: #e70a20;
+}
+
+.copy-examen::before {
+    content: '';
+    background: url('../img/copy.svg') no-repeat center/cover;
+    background-size: 28px;
+    width: 34px;
+    height: 36px;
+    display: block;
 }
 
 .confirm-buttons {

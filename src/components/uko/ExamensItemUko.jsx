@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom'
 import { formatDate, isStartExamen } from '../../utils/date'
+import Button from '../ui/Button'
+import { useContext } from 'react'
+import { UkoContext } from '../../context'
 
 const ExamenItemUko = ({ examen }) => {
+  const { setExamenId, setModalDeleteConfirmActive, setModalCopyActive } = useContext(UkoContext)
+
   let dateExamen = ''
   let dateNow = new Date()
   let dateTimeExamen = new Date(examen.examDate)
@@ -31,6 +36,19 @@ const ExamenItemUko = ({ examen }) => {
           (isStartExamen(new Date(examen.examDate)) && examen.endExamDate == null)
           ? <div className='discipline-btn'>{examen.discipline}</div>
           : <Link to={`/uko/examen-results/${examen.examenId}`} state={ { course: examen.course, group: examen.group, deptName: examen.department.deptName, examenName: examen.discipline, examDate: examen.examDate } } className='discipline-btn'>{examen.discipline}</Link>
+        }
+        {
+          <>
+            <Link to='/uko/edit-examen' state={examen.examenId} title="Изменить экзамен" className='edit-examen btn'></Link>
+            <Button onClick={() => {
+              setExamenId(examen.examenId)
+              setModalDeleteConfirmActive(true)
+            }} title="Удалить экзамен" className='delete-examen'></Button>
+            <Button onClick={() => {
+              setExamenId(examen.examenId)
+              setModalCopyActive(true)
+            }} className='copy-examen' title="Создать пересдачу"></Button>
+          </>
         }
       </div>
     </li>
