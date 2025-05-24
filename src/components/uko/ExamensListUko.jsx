@@ -10,8 +10,8 @@ import DatePicker from '../ui/DatePicker'
 import { UkoContext } from '../../context'
 
 const ExamensListUko = ({ examens, onCopy, onDelete }) => {
-  const examensActive = examens.filter(e => isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
-  const examensNotActive = examens.filter(e => !isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
+  const examensActive = examens.filter(e => isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(b.examDate) - new Date(a.examDate))
+  const examensNotActive = examens.filter(e => !isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(b.examDate) - new Date(a.examDate))
 
   const [modalDeleteConfirmActive, setModalDeleteConfirmActive] = useState(false)
   const [modalCopyActive, setModalCopyActive] = useState(false)
