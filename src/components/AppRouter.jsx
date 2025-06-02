@@ -1,10 +1,10 @@
 import {useContext} from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import {privateStudentRoutes, privateTeacherRoutes, privateAdminRoutes, privateUkoRoutes , publicRoutes} from '../router';
-import {AuthContext} from '../context';
+import {AppContext} from '../context';
 
 const AppRouter = () => {
-    const {isAuthStudent, isAuthAdmin, studentId, employeeId, roleName } = useContext(AuthContext);
+    const {isAuthStudent, isAuthAdmin, studentId, employeeId, roleName } = useContext(AppContext);
     return (
         isAuthStudent
             ?

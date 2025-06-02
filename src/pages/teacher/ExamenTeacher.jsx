@@ -5,12 +5,12 @@ import Popup from '../../components/ui/Popup'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 import { useNavigate } from 'react-router-dom'
 import { formatDate } from '../../utils/date'
 
 const ExamenTeacher = () => {
-    const { employeeId } = useContext(AuthContext)
+    const { employeeId } = useContext(AppContext)
     const [modalActive, setModalActive] = useState(false)
     const [students, setStudents] = useState([])
     const { id } = useParams()

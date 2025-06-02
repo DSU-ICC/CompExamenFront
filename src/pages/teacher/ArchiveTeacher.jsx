@@ -2,11 +2,11 @@ import { useState, useEffect, useContext } from "react";
 import ExamensListUko from '../../components/uko/ExamensListUko'
 import { useFetching } from "../../hooks/useFetching";
 import ExamenService from "../../api/ExamenService";
-import { AuthContext } from "../../context";
+import { AppContext } from "../../context";
 import { Link } from "react-router-dom";
 
 const ArchiveTeacher = () => {
-    const { employeeId } = useContext(AuthContext)
+    const { employeeId } = useContext(AppContext)
     const [archivedExamens, setArchivedExamens] = useState(null)
     const [getExamensFromArchive, isArchiveLoading, archiveErr] = useFetching(async (employeeId) => {
         const response = await ExamenService.getExamensFromArchiveByAuditoriumId(employeeId)

@@ -3,10 +3,10 @@ import ExamenList from '../../components/student/ExamenList'
 import { useFetching } from '../../hooks/useFetching'
 import { useParams } from 'react-router-dom'
 import ExamenService from '../../api/ExamenService'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 
 const Examens = () => {
-  const {showToast} = useContext(AuthContext)
+  const {showToast} = useContext(AppContext)
   
   const [examens, setExamens] = useState([])
   const urlParams = useParams()

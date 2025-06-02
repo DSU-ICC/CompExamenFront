@@ -1,5 +1,5 @@
 import {useContext, useState} from 'react';
-import {AuthContext} from "../../context";
+import {AppContext} from "../../context";
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 
 const LoginTeacher = () => {
-    const {setIsAuthTeacher, setUserName, setEmployeeId} = useContext(AuthContext);
+    const {setIsAuthTeacher, setUserName, setEmployeeId} = useContext(AppContext);
 
     const [loginUser, setLoginUser] = useState(null)
     const [passwordUser, setPasswordUser] = useState(null)

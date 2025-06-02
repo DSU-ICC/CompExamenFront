@@ -1,10 +1,10 @@
 import { useContext } from 'react'
 import logo from '../assets/img/logo.svg'
-import { AuthContext } from '../context'
+import { AppContext } from '../context'
 import { Link, useHref } from 'react-router-dom'
 
 const Header = () => {
-    const {userName, setUserName, isAuthStudent, setIsAuthStudent, setEmployeeId, setIsAuthAdmin, setAccessToken } = useContext(AuthContext)
+    const {userName, setUserName, isAuthStudent, setIsAuthStudent, setEmployeeId, setIsAuthAdmin, setAccessToken } = useContext(AppContext)
     const hrefPage = useHref()
 
     const logout = () => {

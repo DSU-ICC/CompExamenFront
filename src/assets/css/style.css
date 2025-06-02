@@ -1271,31 +1271,51 @@ td {
     text-align: center;
 }
 
-.create-tickets__inner {
-    max-width: 750px;
+.tickets__inner {
+    max-width: 860px;
     margin: 0 auto;
-    text-align: center;
 }
 
-.create-tickets__title {
+.tickets__title {
+    text-align: center;
     margin-bottom: 40px;
 }
 
-.create-tickets__form {
-    margin-bottom: 48px;
+.tickets-form__list {
+    margin-bottom: 40px;
 }
 
-.create-tickets__form .textarea {
-    max-width: 100%;
-    height: 500px;
+.ticket-item__number {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 10px;
 }
 
-.btns {
+.ticket-question .form__label {
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ticket-questions {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 20px;
-    margin-top: 10px;
+    flex-direction: column;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.ticket-question .form__text {
+    font-size: 20px;
+}
+
+.ticket-question .form__label > div,
+.ticket-question__textarea {
+    max-width: initial;
+}
+
+.ticket-item__btns {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .ticket-item__question > div:not(:last-child) {
@@ -1303,23 +1323,51 @@ td {
 }
 
 .ticket-item:not(:last-child) {
-    margin-bottom: 60px;
+    margin-bottom: 70px;
 }
 
-.ticket-item__add {
+.ticket-question__control {
+    display: flex;
+    gap: 20px;
+}
+
+.ticket-question__remove {
+    align-self: flex-start;
+    padding: 10px;
+    font-size: 18px;
+} 
+
+.ticket-item__add,
+.ticket-question__add {
     background-color: #259812;
+    margin: 0 auto;
 }
 
-.ticket-item__add:hover {
+.ticket-item__add:hover,
+.ticket-question__add:hover {
     background-color: #248d13;
 }
 
-.ticket-item__remove {
+.ticket-item__remove,
+.ticket-question__remove {
     background-color: #ec071e;
 }
 
-.ticket-item__remove:hover {
+.ticket-item__remove:hover,
+.ticket-question__remove:hover {
     background-color: #e70a20;
+}
+
+.tickets-form__btns {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.ticket-item__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
 }
 
 .archive__title {

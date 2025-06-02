@@ -2,8 +2,8 @@ import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
 import { useContext } from 'react'
-import { AuthContext } from '../../context'
-import EditTicketsForm from '../../components/common/EditTicketsForm'
+import { AppContext } from '../../context'
+import TicketsForm from '../../components/common/TicketsForm/TicketsForm'
 
 const EditTicketsForUko = () => {
   const data = useLocation()
@@ -11,7 +11,7 @@ const EditTicketsForUko = () => {
 
   const redirect = useNavigate();
 
-  const { employeeId } = useContext(AuthContext)
+  const { employeeId } = useContext(AppContext)
 
   const [editExamen, isEditLoading] = useFetching(async (examData) => {
     const response = await ExamenService.editExamen(examData)
@@ -22,15 +22,15 @@ const EditTicketsForUko = () => {
     }
   })
 
-  const handleSubmitForm = (tickets) => {
-    examData.tickets = tickets
+  const handleSubmitForm = (data) => {
+    examData.tickets = data.tickets
     editExamen(examData)
   }
 
   return (
-    <section className='create-tickets'>
+    <section className='tickets'>
       <div className="container container--smaller">
-        <div className="create-tickets__inner">
+        <div className="tickets__inner">
           <div className='back-link'>
             <Link to={-1}>
                 <svg width="187" height="55" viewBox="0 0 187 55" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,8 +39,8 @@ const EditTicketsForUko = () => {
                 <span className="back-link__text">Назад</span>
             </Link>
           </div>
-          <h1 className='create-tickets__title title'>Редактирование билетов</h1>
-          <EditTicketsForm examData={examData} backLink={`/uko/${employeeId}`} onSubmit={handleSubmitForm} isLoading={isEditLoading} />
+          <h1 className='tickets__title title'>Редактирование билетов</h1>
+          <TicketsForm defaultValues={{ tickets: examData.tickets }} backLink={`/uko/${employeeId}`} onSubmit={handleSubmitForm} isLoading={isEditLoading} />
         </div>
       </div>
     </section>

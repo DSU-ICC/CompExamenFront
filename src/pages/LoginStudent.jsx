@@ -1,5 +1,5 @@
 import { useEffect, useContext, useState, useRef } from 'react';
-import { AuthContext } from "../context";
+import { AppContext } from "../context";
 import Select from '../components/ui/Select'
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 const LoginStudent = () => {
-    const { setIsAuthStudent, setUserName, setStudentId, showToast } = useContext(AuthContext);
+    const { setIsAuthStudent, setUserName, setStudentId, showToast } = useContext(AppContext);
 
     const facultySelectRef = useRef(null)
     const departmentSelectRef = useRef(null)

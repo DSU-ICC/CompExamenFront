@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {AuthContext} from "../context";
+import {AppContext} from "../context";
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 const LoginAdmin = () => {
 
-    const {setIsAuthAdmin, setUserName, setEmployeeId, setAccessToken, setRoleName} = useContext(AuthContext);
+    const {setIsAuthAdmin, setUserName, setEmployeeId, setAccessToken, setRoleName} = useContext(AppContext);
 
 
     const redirect = useNavigate()

@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
-import CreateTicketsForm from '../../components/common/CreateTicketsForm'
+import TicketsForm from '../../components/common/TicketsForm/TicketsForm'
 
 const CreateTicketsForAdmin = () => {
   const redirect = useNavigate()
@@ -27,7 +27,7 @@ const CreateTicketsForAdmin = () => {
             </Link>
           </div>
           <h1 className='create-tickets__title title'>Создание билетов</h1>
-          <CreateTicketsForm backLink="/admin" onSubmit={createExamen} isLoading={isExamenLoading}  />
+          <TicketsForm backLink="/admin" onSubmit={createExamen} isLoading={isExamenLoading}  />
         </div>
       </div>
     </section>

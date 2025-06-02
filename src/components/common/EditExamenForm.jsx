@@ -7,7 +7,7 @@ import { useFetching } from '../../hooks/useFetching'
 import DsuService from '../../api/DsuService'
 import { Controller, useForm } from 'react-hook-form';
 import EmployeeService from '../../api/EmployeeService'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 import ExamenService from '../../api/ExamenService'
 
 const EditExamenForm = ({ examData, onSubmit }) => {
@@ -24,7 +24,7 @@ const EditExamenForm = ({ examData, onSubmit }) => {
     const isManualRef = useRef(null)
     const retakeSelectRef = useRef(null)
 
-    const {employeeId} = useContext(AuthContext)
+    const {employeeId} = useContext(AppContext)
 
     const { control, handleSubmit, setValue, getValues, watch } = useForm({
         mode: "onSubmit",

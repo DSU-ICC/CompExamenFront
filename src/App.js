@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import {AuthContext} from "./context";
+import {AppContext} from "./context";
 import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './components/AppRouter';
 import { Toast } from 'primereact/toast';
@@ -40,7 +40,7 @@ const App = () => {
   return (
     !isLoading
       &&
-      <AuthContext.Provider value={{
+      <AppContext.Provider value={{
         isAuthStudent,
         setIsAuthStudent,
         isAuthAdmin,
@@ -68,7 +68,7 @@ const App = () => {
             <Footer />
           </div>
         </BrowserRouter>
-      </AuthContext.Provider>
+      </AppContext.Provider>
   )
 }
 

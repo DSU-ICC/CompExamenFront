@@ -5,11 +5,11 @@ import Button from '../ui/Button'
 import { useNavigate } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
 const ExamenList = ({ examens, studentId }) => {
-  const {showToast} = useContext(AuthContext)
+  const {showToast} = useContext(AppContext)
 
   const [modalActive, setModalActive] = useState(false)
   const [examenId, setExamenId] = useState(null)

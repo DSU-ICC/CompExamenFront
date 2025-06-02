@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import StudentScoreList from '../../components/teacher/StudentScoreList'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import ExamenService from '../../api/ExamenService'
@@ -10,7 +10,7 @@ import Button from '../../components/ui/Button'
 import { printElement } from '../../utils/print'
 
 const ExamenResults = () => {
-  const { employeeId } = useContext(AuthContext)
+  const { employeeId } = useContext(AppContext)
   const { id } = useParams()
   const data = useLocation()
   const { course, group, deptName, examenName, examDate } = data.state

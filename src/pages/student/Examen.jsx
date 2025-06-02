@@ -6,12 +6,12 @@ import Popup from '../../components/ui/Popup'
 import { useFetching } from '../../hooks/useFetching'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AnswerBlankService from '../../api/AnswerBlankService'
-import { AuthContext } from '../../context'
+import { AppContext } from '../../context'
 import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
 
 const Examen = () => {
-  const { showToast } = useContext(AuthContext)
+  const { showToast } = useContext(AppContext)
   const autoSaveTimerId = useRef()
   const saveBtnRef = useRef(null)
 
