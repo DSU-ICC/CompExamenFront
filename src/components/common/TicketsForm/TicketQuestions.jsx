@@ -1,6 +1,6 @@
 import { useFieldArray, Controller } from "react-hook-form";
-import TextArea from "../../ui/TextArea";
 import Button from "../../ui/Button";
+import TextEditor from "../../ui/TextEditor/TextEditor";
 
 const TicketQuestions = ({ ticketIndex, control, onEmpty }) => {
     const { fields, append, remove, update } = useFieldArray({
@@ -42,7 +42,7 @@ const TicketQuestions = ({ ticketIndex, control, onEmpty }) => {
                 {
                     fields.map((field, index) => (
                         <li key={field.id} className='ticket-questions__item ticket-question'>
-                            <label className='form__label'>
+                            <div className='form__label'>
                                 <span className='form__text'>Вопрос №{field.number}</span>
                                 <Controller
                                     control={control}
@@ -52,7 +52,7 @@ const TicketQuestions = ({ ticketIndex, control, onEmpty }) => {
                                     }}
                                     render={({ field: { value, onChange }, fieldState: { error } }) => (
                                         <div className="ticket-question__control">
-                                            <TextArea className={`ticket-question__textarea ${error ? 'error' : ''}`} value={value} onChange={onChange} />
+                                            <TextEditor value={value} onChange={onChange} />
                                             <Button onClick={() => handleRemoveQuestion(index)} type="button" className="ticket-question__remove">Удалить</Button>
                                         </div>
                                     )}
@@ -64,7 +64,7 @@ const TicketQuestions = ({ ticketIndex, control, onEmpty }) => {
                                         Добавить вопрос
                                     </Button>
                                 }
-                            </label>
+                            </div>
                         </li>
                     ))
                 }

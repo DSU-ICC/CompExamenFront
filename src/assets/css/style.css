@@ -1229,10 +1229,10 @@ main {
     margin-bottom: 6px;
 }
 
-table, 
-tr, 
-th, 
-td {
+.statement__table table, 
+.statement__table tr, 
+.statement__table th, 
+.statement__table td {
     border: 1px solid #000;
     border-collapse: collapse;
     padding: 10px;
@@ -1272,7 +1272,7 @@ td {
 }
 
 .tickets__inner {
-    max-width: 860px;
+    max-width: 1024px;
     margin: 0 auto;
 }
 
@@ -1329,6 +1329,30 @@ td {
 .ticket-question__control {
     display: flex;
     gap: 20px;
+}
+
+.ck.ck-editor {
+    width: 100% !important;
+}
+
+.ck-content h1, 
+.ck-content h2, 
+.ck-content h3, 
+.ck-content h4, 
+.ck-content h5, 
+.ck-content h6 {
+    font-size: revert;
+    font-weight: revert;
+}
+
+.ck-content ul,
+.ck-content ol {
+    padding-left: 40px;
+}
+
+.ck-content ul li,
+.ck-content ol li {
+    list-style: inherit;
 }
 
 .ticket-question__remove {
