@@ -22,15 +22,13 @@ const AnswerList = ({ questions, answers }) => {
             <li key={question.id} className='answers-check__item answers-item'>
               <div className="answers-item__wrapper">
                 <span className='answers-item__number'>Вопрос №{question.number}</span>
-                <p className="answers-item__text">
-                  {question.text}
-                </p>
+                <div className="answers-item__content" dangerouslySetInnerHTML={{ __html: question.text  }}></div>
               </div>
               <div className="answers-item__wrapper">
                 <span className='answers-item__number answers-item__number-answer'>Ответ №{question.number}</span>
-                <p className="answers-item__text">
+                <div className="answers-item__content">
                   {getAnswerTextByQuestionId(question.id)}
-                </p>
+                </div>
               </div>
             </li>
           )

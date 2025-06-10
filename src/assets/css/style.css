@@ -838,11 +838,6 @@ main {
     width: 100%;
 }
 
-.questions-item__answer-text {
-    max-width: 100%;
-    min-height: 300px;
-}
-
 .questions-item__inner,
 .answers-item__inner {
     margin-bottom: 20px;
@@ -856,8 +851,8 @@ main {
     margin-right: 38px;
 }
 
-.questions-item__text,
-.answers-item__text {
+.questions-item__content,
+.answers-item__content {
     font-size: 24px;
     color: #212931;
     margin-bottom: 21px;

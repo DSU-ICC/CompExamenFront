@@ -24,7 +24,7 @@ import {
     ImageStyle,
     ImageCaption,
     Base64UploadAdapter,
-    CodeBlock,  
+    CodeBlock,
     SourceEditing,
     FindAndReplace
 } from 'ckeditor5';
@@ -36,7 +36,7 @@ import ruTranslations from 'ckeditor5/translations/ru.js'
 
 import 'ckeditor5/ckeditor5.css';
 
-const TextEditor = ({ value, onChange, ...props }) => {
+const TextEditor = ({ value, onChange, pasteFromClipboard = true, canUploadImage = true, ...props }) => {
     return (
         <CKEditor
             editor={ClassicEditor}
@@ -61,11 +61,11 @@ const TextEditor = ({ value, onChange, ...props }) => {
                     Image,
                     ImageInsert,
                     ImageEditing,
-                    ImageToolbar, 
+                    ImageToolbar,
                     ImageResize,
-                    ImageResizeEditing, 
-                    ImageResizeHandles, 
-                    ImageStyle, 
+                    ImageResizeEditing,
+                    ImageResizeHandles,
+                    ImageStyle,
                     ImageCaption,
                     Base64UploadAdapter,
                     DisableImagePaste,
@@ -78,7 +78,7 @@ const TextEditor = ({ value, onChange, ...props }) => {
                     'bold', 'italic', '|',
                     'findAndReplace', 'insertTable', 'bulletedList', 'numberedList', 'indent', 'outdent', '|',
                     'MathType', 'ChemType', '|',
-                    'blockQuote', 'alignment', 'insertImageViaUrl', '|',
+                    'blockQuote', 'alignment', `${canUploadImage ? 'insertImageViaUrl' : ''}`, '|',
                     'codeBlock', 'sourceEditing',
                 ],
                 table: {
@@ -93,12 +93,8 @@ const TextEditor = ({ value, onChange, ...props }) => {
                         'imageStyle:alignCenter',
                         'imageStyle:alignRight',
                         '|',
-                        'resizeImage',
-                        'editImage'
+                        'resizeImage'
                     ],
-                    insert: {
-                        integrations: ['url']
-                    },
                     resizeUnit: "%",
                     resizeOptions: [
                         { name: 'resizeImage:original', value: null, label: 'Оригинальный размер' },
@@ -116,7 +112,12 @@ const TextEditor = ({ value, onChange, ...props }) => {
                 },
                 translations: [ruTranslations]
             }}
-            onChange={(event, editor) => onChange(editor.getData())}
+            onReady={(editor) => {
+                if (!pasteFromClipboard) {
+                    editor.editing.view.document.on('clipboardInput', (evt, data) => evt.stop())
+                }
+            }}
+            onChange={(event, editor) => onChange && onChange(editor.getData())}
             data={value}
             {...props}
         />

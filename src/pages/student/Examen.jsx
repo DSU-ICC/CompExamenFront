@@ -9,7 +9,6 @@ import AnswerBlankService from '../../api/AnswerBlankService'
 import { AppContext } from '../../context'
 import { TIME_TO_AUTOSAVE_IN_MINUTES } from '../../utils/constants'
 
-
 const Examen = () => {
   const { showToast } = useContext(AppContext)
   const autoSaveTimerId = useRef()
@@ -82,10 +81,10 @@ const Examen = () => {
   const getStudentAnswers = (currentExamenAnswers) => {
     const newAnswers = []
 
-    const textFields = document.querySelectorAll("textarea")
+    const textFields = document.querySelectorAll(".questions-item__answer-text")
     textFields.forEach(textField => {
       const questionId = parseInt(textField.dataset.questionId)
-      const fieldValue = textField.value.trim() || null
+      const fieldValue = textField.querySelector(".ck-content").innerHTML || null
       const answer = currentExamenAnswers.find(e => e.questionId == questionId)
 
       if (answer) {
