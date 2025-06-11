@@ -110,6 +110,11 @@ const TextEditor = ({ value, onChange, pasteFromClipboard = true, canUploadImage
                         reversed: true
                     }
                 },
+                mathTypeParameters: {
+                    editorParameters: {
+                        fontSize: '24px'
+                    }
+                },
                 translations: [ruTranslations]
             }}
             onReady={(editor) => {

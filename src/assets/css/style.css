@@ -853,9 +853,27 @@ main {
 
 .questions-item__content,
 .answers-item__content {
-    font-size: 24px;
+    font-size: 20px;
     color: #212931;
     margin-bottom: 21px;
+}
+
+.questions-item__content math,
+.answers-item__content math {
+    font-size: 28px;
+}
+
+.questions-item__content math.wrs_chemistry,
+.answers-item__content math.wrs_chemistry {
+    font-size: 30px;
+}
+
+.questions-item__answer-text {
+    font-size: 20px;
+}
+
+.answers-item__content {
+    width: 100%;
 }
 
 .answers-item__number-answer {
@@ -1324,6 +1342,7 @@ main {
 .ticket-question__control {
     display: flex;
     gap: 20px;
+    font-size: 20px;
 }
 
 .ck.ck-editor {

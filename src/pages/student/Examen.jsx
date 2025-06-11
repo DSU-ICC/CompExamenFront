@@ -78,13 +78,24 @@ const Examen = () => {
     return () => clearInterval(autoSaveTimerId.current)
   }, [])
 
+  const getHtmlWithoutWidgetHints = (htmlContent) => {
+    const container = document.createElement('div');
+    container.innerHTML = htmlContent;
+    const elements = container.querySelectorAll('.ck-fake-selection-container');
+    for (let el of elements) {
+      el.remove();
+    }
+
+    return container.innerHTML;
+  }
+
   const getStudentAnswers = (currentExamenAnswers) => {
     const newAnswers = []
 
     const textFields = document.querySelectorAll(".questions-item__answer-text")
     textFields.forEach(textField => {
       const questionId = parseInt(textField.dataset.questionId)
-      const fieldValue = textField.querySelector(".ck-content").innerHTML || null
+      const fieldValue = getHtmlWithoutWidgetHints(textField.querySelector(".ck-content").innerHTML)
       const answer = currentExamenAnswers.find(e => e.questionId == questionId)
 
       if (answer) {

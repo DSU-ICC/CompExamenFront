@@ -1,3 +1,5 @@
+import TextEditor from "../ui/TextEditor/TextEditor"
+
 const AnswerList = ({ questions, answers }) => {
   const getAnswerTextByQuestionId = (questionId) => {
     let answer = answers.find(ans => ans.questionId == questionId)
@@ -22,12 +24,12 @@ const AnswerList = ({ questions, answers }) => {
             <li key={question.id} className='answers-check__item answers-item'>
               <div className="answers-item__wrapper">
                 <span className='answers-item__number'>Вопрос №{question.number}</span>
-                <div className="answers-item__content" dangerouslySetInnerHTML={{ __html: question.text  }}></div>
+                <div className="answers-item__content ck-content" dangerouslySetInnerHTML={{ __html: question.text  }}></div>
               </div>
               <div className="answers-item__wrapper">
                 <span className='answers-item__number answers-item__number-answer'>Ответ №{question.number}</span>
                 <div className="answers-item__content">
-                  {getAnswerTextByQuestionId(question.id)}
+                  <TextEditor value={getAnswerTextByQuestionId(question.id)} disabled={true} />
                 </div>
               </div>
             </li>
