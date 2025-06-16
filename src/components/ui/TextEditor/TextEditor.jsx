@@ -67,7 +67,6 @@ const TextEditor = ({ value, onChange, pasteFromClipboard = true, canUploadImage
                     ImageResizeHandles,
                     ImageStyle,
                     ImageCaption,
-                    Base64UploadAdapter,
                     DisableImagePaste,
                     CodeBlock,
                     SourceEditing

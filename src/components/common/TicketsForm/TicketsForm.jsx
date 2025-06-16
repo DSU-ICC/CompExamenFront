@@ -1,16 +1,20 @@
 
 import Button from '../../ui/Button'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { useLocation, Link } from 'react-router-dom'
-import { useContext } from 'react'
+import { Link } from 'react-router-dom'
+import { useContext, useEffect } from 'react'
 import { AppContext } from '../../../context'
 import TicketQuestions from './TicketQuestions'
 
 const TicketsForm = ({ defaultValues, backLink, onSubmit, isLoading }) => {
-    const { control, handleSubmit } = useForm({
+    const { control, handleSubmit, reset } = useForm({
         mode: "onSubmit",
         defaultValues
     });
+
+    useEffect(() => {
+        reset(defaultValues)
+    }, [defaultValues])
 
     const { fields, append, remove, update } = useFieldArray({
         control,
