@@ -8,6 +8,7 @@ import DsuService from "../../api/DsuService";
 import { useFetching } from "../../hooks/useFetching";
 import ExamenService from "../../api/ExamenService";
 import { Link } from "react-router-dom";
+import ExamensListArchiveUko from "../../components/uko/ExamensListArchiveUko";
 
 const Archive = () => {
     const departmentSelectRef = useRef(null)
@@ -194,7 +195,7 @@ const Archive = () => {
                             archivedExamens != null ?
                                 archivedExamens.length > 0
                                     ?
-                                    <ExamensListUko examens={archivedExamens} />
+                                    <ExamensListArchiveUko examens={archivedExamens} />
                                     :
                                     <div>Нет данных!</div>
                                 : <></>

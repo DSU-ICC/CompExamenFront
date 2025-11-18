@@ -74,6 +74,19 @@ export default class ExamenService {
         return response;
     }
 
+    static async getStatisticForExamFromArchive(examenId) {
+        const response = await axios.get(`${API_URL}/Examen/GetStatisticForExamFromArchive`, {
+            params: {
+                examenId
+            },
+            headers: {
+                "Authorization": `Bearer ${getToken()}`
+            },
+            withCredentials: true
+        })
+        return response;
+    }
+
     static async startExamen(id, examenId) {
         const response = await axios.get(`${API_URL}/Examen/StartExamen`, {
             params: {

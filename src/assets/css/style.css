@@ -1242,10 +1242,7 @@ main {
     margin-bottom: 6px;
 }
 
-.statement__table table, 
-.statement__table tr, 
-.statement__table th, 
-.statement__table td {
+table,tr, th, td {
     border: 1px solid #000;
     border-collapse: collapse;
     padding: 10px;

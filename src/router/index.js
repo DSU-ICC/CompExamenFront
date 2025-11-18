@@ -21,6 +21,7 @@ import EditTicketsForUko from "../pages/uko/EditTicketsForUko";
 import CreateExamenForAdmin from "../pages/admin/CreateExamenForAdmin";
 import CreateTicketsForUko from "../pages/uko/CreateTicketsForUko";
 import CreateTicketsForAdmin from "../pages/admin/CreateTicketsForAdmin";
+import ExamenStatistic from "../pages/uko/ExamenStatistic";
 
 export const privateStudentRoutes = [
     {path: '/examens/:id', element: <Examens />, exact: true},
@@ -45,7 +46,8 @@ export const privateUkoRoutes = [
     {path: '/uko/edit-tickets', element: <EditTicketsForUko />, exact: true},
     {path: '/uko/examen-results/:id', element: <ExamenResultsUko/>, exact: true},
     {path: '/uko/student-answers', element: <StudentAnswersUko />, exact: true},
-    {path: '/uko/archive', element: <Archive />, exact: true}
+    {path: '/uko/archive', element: <Archive />, exact: true},
+    {path: '/uko/examen-statistic/:id', element: <ExamenStatistic />, exact: true}
 ]
 
 export const privateAdminRoutes = [
