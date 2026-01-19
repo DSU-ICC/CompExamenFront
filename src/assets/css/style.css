@@ -232,6 +232,19 @@ body {
     left: 19px;
 }
 
+.react-datepicker__close-icon {
+    top: 50% !important;
+    transform: translateY(-50%);
+    height: auto !important;
+}
+
+.react-datepicker__close-icon::after {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 16px !important;
+    background-color: #bcbcbc !important;
+}
+
 .site-wrapper {
     display: flex;
     flex-direction: column;

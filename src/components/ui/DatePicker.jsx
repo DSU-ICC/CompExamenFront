@@ -1,9 +1,9 @@
 import { forwardRef, useState } from 'react'
 import ReactDatePicker from 'react-datepicker' 
-import 'react-datepicker/dist/react-datepicker.css'
 import ru from 'date-fns/locale/ru';
+import 'react-datepicker/dist/react-datepicker.css'
 
-const DatePicker = forwardRef(({ onChange, value, showTimeSelect = true }, ref) => {
+const DatePicker = forwardRef(({ onChange, value, showTimeSelect = true, ...props }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const onChangeDate = (newDate) => {
     if (!newDate) {
@@ -34,6 +34,8 @@ const DatePicker = forwardRef(({ onChange, value, showTimeSelect = true }, ref) 
             onChange={onChangeDate}      
             onCalendarOpen={() => setIsOpen(true)}
             onCalendarClose={() => setIsOpen(false)}
+            
+            {...props}
         />
     </div>
   )

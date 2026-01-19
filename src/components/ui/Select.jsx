@@ -4,7 +4,7 @@ import makeAnimated from 'react-select/animated';
 
 const animatedComponents = makeAnimated();
 
-const Select = forwardRef(({ options, onChange, value, isDisabled = true, isLoading = false, isMulti = false, placeholder = '', components}, ref) => {
+const Select = forwardRef(({ options, onChange, value, isDisabled = true, isLoading = false, isMulti = false, placeholder = '', components, ...props}, ref) => {
     return (
         <ReactSelect
             ref={ref}
@@ -22,6 +22,7 @@ const Select = forwardRef(({ options, onChange, value, isDisabled = true, isLoad
             }
             isDisabled={isDisabled}
             isLoading={isLoading}
+            {...props}
         />
     )
 });

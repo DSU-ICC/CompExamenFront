@@ -17,8 +17,9 @@ import DsuService from '../../api/DsuService'
 const AdminPage = () => {
   const redirect = useNavigate()
 
-  const [examens, setExamens] = useState([])
+  const [filials, setFilials] = useState([])
   const [examensForSelect, setExamensForSelect] = useState([])
+  const [filteredExamensForSelect, setFilteredExamensForSelect] = useState([])
   const [modalEditActive, setModalEditActive] = useState(false)
   const [modalDeleteActive, setModalDeleteActive] = useState(false)
   const [modalDeleteConfirmActive, setModalDeleteConfirmActive] = useState(false)
@@ -31,37 +32,55 @@ const AdminPage = () => {
   const [studentsForSelect, setStudentsForSelect] = useState([])
   const [copyExamenDate, setCopyExamenDate] = useState(new Date())
 
+  const [getFilials, isFilialsLoading] = useFetching(async () => {
+    const response = await DsuService.getFilials()
+    if (response.status == 200) {
+      const filials = response.data.map(f => ({
+        label: f.filial,
+        value: f.filId
+      }))
+      setFilials(filials)
+    } 
+  })
+
   const [getExamens, isExamensLoading] = useFetching(async () => {
-    const responseFilials = await DsuService.getFilials()
-    const responseExamens = await ExamenService.getExamens()
-
-    if (responseExamens.status == 200) {
-      setExamens(responseExamens.data)
-
+    const response = await ExamenService.getExamens()
+    if (response.status == 200) {
       const dataArr = []
-      responseExamens.data.forEach(dataItem => {
-        const filialName = responseFilials.data?.find(x => x.filId == dataItem.filialId)?.filial
-
-        dataArr.push({
-          value: dataItem.id,
-          label: dataItem.discipline,
-          title: `Филиал - ${filialName}\r\nДата проведения: ${formatDate(new Date(dataItem.examDate))}\r\nКурс: ${dataItem.course}\r\nГруппа: ${dataItem.nGroup}`
-        })
+      response.data
+        .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
+        .forEach(dataItem => {
+          const filialName = filials?.find(x => x.value == dataItem.filialId)?.label
+          dataArr.push({
+            value: dataItem.id,
+            label: dataItem.discipline,
+            filialId: dataItem.filialId,
+            examDate: dataItem.examDate,
+            title: `Филиал - ${filialName}\r\nДата проведения: ${formatDate(new Date(dataItem.examDate))}\r\nКурс: ${dataItem.course}\r\nГруппа: ${dataItem.nGroup}`
+          })
       })
       setExamensForSelect(dataArr)
+      setFilteredExamensForSelect(dataArr)
     }
   })
 
   useEffect(() => {
-    getExamens()
+    getFilials()
   }, [])
+
+  useEffect(() => {
+    if (filials.length != 0) {
+      getExamens()
+    }
+  }, [filials])
 
   const [deleteExamen, isDeleteLoading, deleteError] = useFetching(async (examenId) => {
     const response = await ExamenService.deleteExamen(examenId)
     if (response.status == 200 || deleteError) {
       console.log(deleteError)
       alert("Экзамен успешно удален!")
-      setExamens(examens.filter(e => e.examenId != examenId))
+      setExamensForSelect(examensForSelect.filter(e => e.examenId != examenId))
+      setFilteredExamensForSelect(examensForSelect.filter(e => e.examenId != examenId))
       setModalDeleteConfirmActive(false)
       setExamenId(null)
     }
@@ -115,7 +134,7 @@ const AdminPage = () => {
 
   const handleEditExamen = () => {
     redirect('/admin/edit-examen', {
-      state: examens.find(e => e.id == examenId)
+      state: examensForSelect.find(e => e.value == examenId)
     })
   }
 
@@ -163,7 +182,7 @@ const AdminPage = () => {
     }
   })
 
-  const { control: controlResetExamenForStudent, handleSubmit: handleSubmitResetExamenForStudent, getValues: getResetExamenForStudentData } = useForm({
+  const { control: controlResetExamenForStudent, reset: resetExamenFormForResetStudent, handleSubmit: handleSubmitResetExamenForStudent, getValues: getResetExamenForStudentData } = useForm({
     mode: "onSubmit",
     defaultValues: {
       additionalTimeInMinutes: null,
@@ -171,7 +190,7 @@ const AdminPage = () => {
     }
   })
 
-  const { control: controlResetExamen, handleSubmit: handleSubmitResetExamen } = useForm({
+  const { control: controlResetExamen, reset: resetExamenForForResetTeacher, handleSubmit: handleSubmitResetExamen, getValues: getResetExamenForTeacherData } = useForm({
     mode: "onSubmit"
   })
 
@@ -184,6 +203,58 @@ const AdminPage = () => {
       </components.Option>
     );
   };
+
+  const filterExamensForReset = () => {
+    const { filialId, examDate } = getResetExamenForStudentData()
+    if (filialId) {
+      setFilteredExamensForSelect(prev => prev.filter(x => x.filialId == filialId))
+    } else {
+      setFilteredExamensForSelect(examensForSelect)
+    }
+
+    if (examDate) {
+      setFilteredExamensForSelect(prev => 
+        prev
+          .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
+          .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
+      )
+    } else {
+      setFilteredExamensForSelect(examensForSelect)
+    }
+  }
+
+  const filterExamensForResetTeacher = () => {
+    const { filialId, examDate } = getResetExamenForTeacherData()
+    if (filialId) {
+      setFilteredExamensForSelect(prev => prev.filter(x => x.filialId == filialId))
+    } else {
+      setFilteredExamensForSelect(examensForSelect)
+    }
+
+    if (examDate) {
+      setFilteredExamensForSelect(prev => 
+        prev
+          .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
+          .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
+      )
+    } else {
+      setFilteredExamensForSelect(examensForSelect)
+    }
+  }
+
+  const onCloseResetExamenForStudent = () => {
+    setExamenId(null)
+    resetExamenFormForResetStudent()
+    setFilteredExamensForSelect(examensForSelect)
+    setModalResetForStudentActive(false)
+  }
+
+  const onCloseResetExamenForTeacher = () => {
+    setExamenId(null)
+    resetExamenForForResetTeacher() 
+    setFilteredExamensForSelect(examensForSelect)
+    setModalResetForTeacherActive(false)
+  }
 
   return (
     <>
@@ -264,9 +335,46 @@ const AdminPage = () => {
           <Button className="confirm-button confirm-button--no" onClick={() => setModalDeleteConfirmActive(false)}>Нет</Button>
         </div>
       </Popup>
-      <Popup active={modalResetForStudentActive} setActive={() => { setExamenId(null); setModalResetForStudentActive(false) }}>
+      <Popup active={modalResetForStudentActive} setActive={onCloseResetExamenForStudent}>
         <h2 className="popup__title title">Сброс экзамена студенту</h2>
         <form className='form' style={{ marginBottom: 20 }} onSubmit={handleSubmitResetExamenForStudent(handleResetExamenForStudent)}>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Филиал</span>
+            <Controller
+              control={controlResetExamenForStudent}
+              name='filialId'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    value={value ? filials?.find(x => x.value == value) : null}
+                    onChange={(newValue) => { onChange(newValue?.value); filterExamensForReset() }}
+                    placeholder='Выберите филиал'
+                    options={filials}
+                    isLoading={isFilialsLoading}
+                    isDisabled={isFilialsLoading}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Дата</span>
+            <Controller
+              control={controlResetExamenForStudent}
+              name='examDate'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <DatePicker
+                    value={value}
+                    onChange={(newValue) => { onChange(newValue); filterExamensForReset() }}
+                    showTimeSelect={false}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
             <span className='form__text'>Экзамен</span>
             <Controller
@@ -275,15 +383,16 @@ const AdminPage = () => {
               rules={{
                 required: true
               }}
-              render={({ field: { onChange }, fieldState: { error } }) => (
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <div className={error ? 'error' : ''}>
                   <Select
+                    value={value ? filteredExamensForSelect?.find(x => x.value == value) : null}
                     onChange={(newValue) => { getStudentsByExamenId(newValue.value); onChange(newValue.value) }}
                     components={{
                       Option: CustomOption
                     }}
                     placeholder='Выберите экзамен'
-                    options={examensForSelect}
+                    options={filteredExamensForSelect}
                     isLoading={isExamensLoading}
                     isDisabled={isExamensLoading}
                   />
@@ -299,9 +408,10 @@ const AdminPage = () => {
               rules={{
                 required: true
               }}
-              render={({ field: { onChange }, fieldState: { error } }) => (
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <div className={error ? 'error' : ''}>
                   <Select
+                    value={value ? studentsForSelect?.find(x => x.value == value) : null}
                     onChange={(newValue) => onChange(newValue.value)}
                     placeholder='Выберите студента'
                     options={studentsForSelect}
@@ -317,8 +427,9 @@ const AdminPage = () => {
             <Controller
               control={controlResetExamenForStudent}
               name='additionalTimeInMinutes'
-              render={({ field: { onChange } }) => (
+              render={({ field: { value, onChange } }) => (
                 <Input
+                  value={value || ""}
                   type="number"
                   onWheel={() => document.activeElement.blur()}
                   onInput={e => {
@@ -337,7 +448,7 @@ const AdminPage = () => {
               name="isRemoveAnswerBlank"
               render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <Input
-                  value={value}
+                  checked={value}
                   type="checkbox"
                   className={`form__input ${error ? " error" : ""}`}
                   onChange={(newValue) => onChange(newValue.target.checked)}
@@ -355,9 +466,46 @@ const AdminPage = () => {
           <Button className="confirm-button confirm-button--no" onClick={() => setModalResetStudentConfirmActive(false)}>Нет</Button>
         </div>
       </Popup>
-      <Popup active={modalResetForTeacherActive} setActive={() => { setExamenId(null); setModalResetForTeacherActive(false) }}>
+      <Popup active={modalResetForTeacherActive} setActive={onCloseResetExamenForTeacher}>
         <h2 className="popup__title title">Сброс экзамена преподавателю</h2>
         <form className='form' style={{ marginBottom: 20 }} onSubmit={handleSubmitResetExamen(handleResetExamenForTeacher)}>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Филиал</span>
+            <Controller
+              control={controlResetExamen}
+              name='filialId'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    value={value ? filials?.find(x => x.value == value) : null}
+                    onChange={(newValue) => { onChange(newValue?.value); filterExamensForResetTeacher() }}
+                    placeholder='Выберите филиал'
+                    options={filials}
+                    isLoading={isFilialsLoading}
+                    isDisabled={isFilialsLoading}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Дата</span>
+            <Controller
+              control={controlResetExamen}
+              name='examDate'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <DatePicker
+                    value={value}
+                    onChange={(newValue) => { onChange(newValue); filterExamensForResetTeacher() }}
+                    showTimeSelect={false}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
           <label className='form__label' onClick={(evt) => evt.preventDefault()}>
             <span className='form__text'>Экзамен</span>
             <Controller
@@ -366,15 +514,16 @@ const AdminPage = () => {
               rules={{
                 required: true
               }}
-              render={({ field: { onChange }, fieldState: { error } }) => (
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <div className={error ? 'error' : ''}>
                   <Select
+                    value={value ? filteredExamensForSelect?.find(x => x.value == value) : null}
                     onChange={(newValue) => { setExamenId(newValue.value); onChange(newValue.value) }}
                     components={{
                       Option: CustomOption
                     }}
                     placeholder='Выберите экзамен'
-                    options={examensForSelect}
+                    options={filteredExamensForSelect}
                     isLoading={isExamensLoading}
                     isDisabled={isExamensLoading}
                   />
