@@ -330,6 +330,7 @@ const LoginStudent = () => {
                                 render={({ field: { onChange }, fieldState: { error } }) => (
                                     <Input
                                         className={`form__input form__input--small${error ? ' error' : ''}`}
+                                        onKeyDown={(e) => e.key == ' ' && e.preventDefault()}
                                         onChange={(newValue) => { onChange(newValue) }}
                                     />
                                 )}

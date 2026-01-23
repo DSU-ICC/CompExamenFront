@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import logo from '../assets/img/logo.svg'
+import logo from '../assets/img/logo.png'
 import { AppContext } from '../context'
 import { Link, useHref } from 'react-router-dom'
 
@@ -32,15 +32,17 @@ const Header = () => {
         <header className="header">
             <div className="header__container container">
                 <Link to="/" className="logo">
-                    <img src={logo} alt="" />
+                    <div className="logo__img">
+                        <img src={logo} alt="Логотип ДГУ" />
+                    </div>
+                    <span className="logo__text">Система компьютерного экзамена</span>
                 </Link>
                 {
-                    isLoginPage() &&
-                        
-                            <div className='nav'>
-                        <Link to='/' className={`nav-link btn${!isAdminPage() ? ' active' : ''}`}>Студентам</Link>
-                        <Link to='/login' className={`nav-link btn${isAdminPage() ? ' active' : ''}`}>Администратор</Link>
-                    </div>
+                    isLoginPage() &&       
+                        <div className='nav'>
+                            <Link to='/' className={`nav-link btn${!isAdminPage() ? ' active' : ''}`}>Студентам</Link>
+                            <Link to='/login' className={`nav-link btn${isAdminPage() ? ' active' : ''}`}>Администратор</Link>
+                        </div>
                 }
                 {
                     <div className="action">
