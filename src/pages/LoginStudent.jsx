@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 const LoginStudent = () => {
-    const { setIsAuthStudent, setUserName, setStudentId, showToast } = useContext(AppContext);
+    const { setIsAuthStudent, setUserName, setStudentId, setRoleName, showToast } = useContext(AppContext);
 
     const facultySelectRef = useRef(null)
     const departmentSelectRef = useRef(null)
@@ -171,19 +171,26 @@ const LoginStudent = () => {
         const response = await DsuService.signInStudent(studentId, nzachkn)
 
         if (response.status == 200) {
+            const userData = response.data
+
             setIsAuthStudent(true)
             localStorage.setItem("isAuthStudent", "true")
 
-            let studentFio = students.find(s => s.value === studentId).label
+            let studentFio = `${userData.firstname} ${userData.lastname} ${userData.patr}`
             setUserName(studentFio)
             localStorage.setItem("userName", studentFio)
 
-            setStudentId(studentId)
-            localStorage.setItem("studentId", studentId)
+            setStudentId(userData.studentId)
+            localStorage.setItem("studentId", userData.studentId)
 
-            redirect(`/examens/${studentId}`)
+            setRoleName(userData.role)
+            localStorage.setItem("roleName", userData.role)
+
+            localStorage.setItem("access_token", userData.jwtToken)
+
+            redirect(`/examens/${userData.studentId}`)
         } else {
-            showToast("error", `Статус ${response.status}`, "Неверные Ф.И.О. или № зач. книжки!")
+            showToast("error", `Статус ${response.status}`, response.data)
         }
     })
 

@@ -47,7 +47,7 @@ const CreateExamenForm = ({onSubmit}) => {
     })
 
     const [auditoriums, setAuditoriums] = useState([])
-    const [getEmployees, isAuditoriumLoading] = useFetching(async () => {
+    const [getAuditories, isAuditoriumLoading] = useFetching(async () => {
         const response = await EmployeeService.getAuditories()
         const data = response.data.map(dataItem => ({
             value: dataItem.id,
@@ -69,7 +69,7 @@ const CreateExamenForm = ({onSubmit}) => {
 
     useEffect(() => {
         getTeachers()
-        getEmployees()
+        getAuditories()
         getFilials()
         getEdukinds()
         getRetakes()

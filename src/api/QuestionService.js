@@ -1,17 +1,8 @@
-import axios from "axios";
-import { API_URL, getToken } from "./config";
+import { API_URL, axiosWithAuth } from "./config";
 
 export default class QuestionService {
     static async deleteQuestion(id) {
-        const response = await axios.post(`${API_URL}/Question/DeleteQuestion?id=${id}`, {}, {
-            params: {
-                id: id
-            },
-            headers: {
-                "Authorization": `Bearer ${getToken()}`
-            },
-            withCredentials: true
-        })
+        const response = await axiosWithAuth.post(`${API_URL}/Question/DeleteQuestion?id=${id}`)
         return response;
     }
 }
