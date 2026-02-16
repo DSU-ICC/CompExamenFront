@@ -11,13 +11,13 @@ const EditTicketsForUko = () => {
 
   const redirect = useNavigate();
 
-  const { employeeId } = useContext(AppContext)
+  const { showToast, employeeId } = useContext(AppContext)
 
   const [editExamen, isEditLoading] = useFetching(async (examData) => {
     const response = await ExamenService.editExamen(examData)
 
     if (response.status == 200) {
-      alert("Экзамен успешно обновлен!")
+      showToast("success", "Экзамен успешно обновлен!")
       redirect(`/uko/${employeeId}`)
     }
   })

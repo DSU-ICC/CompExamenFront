@@ -2,14 +2,16 @@ import ExamenItemUko from './ExamensItemUko'
 import Popup from '../../components/ui/Popup'
 import ExamenService from '../../api/ExamenService'
 import { isStartExamen } from '../../utils/date'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '../ui/Button'
 import { useFetching } from '../../hooks/useFetching'
 import DatePicker from '../ui/DatePicker'
-import { UkoContext } from '../../context'
+import { AppContext, UkoContext } from '../../context'
 
 const ExamensListUko = ({ examens, onCopy, onDelete }) => {
+  const { showToast } = useContext(AppContext)
+
   const examensActive = examens.filter(e => isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(b.examDate) - new Date(a.examDate))
   const examensNotActive = examens.filter(e => !isStartExamen(new Date(e.examDate))).sort((a, b) => new Date(b.examDate) - new Date(a.examDate))
 
@@ -32,7 +34,7 @@ const ExamensListUko = ({ examens, onCopy, onDelete }) => {
   const [deleteExamen, isDeleteLoading] = useFetching(async (examenId) => {
     const response = await ExamenService.deleteExamen(examenId)
     if (response.status == 200) {
-      alert("Экзамен успешно удален!")
+      showToast("success", "Экзамен успешно удален!")
       setModalDeleteConfirmActive(false);
       setExamenId(null);
       onDelete(examenId)
@@ -42,7 +44,7 @@ const ExamensListUko = ({ examens, onCopy, onDelete }) => {
   const [copyExamen, isCopyLoading] = useFetching(async (examenId, newDateExamen) => {
     const response = await ExamenService.copyExamen(examenId, newDateExamen)
     if (response.status == 200) {
-      alert("Пересдача успешно создана!")
+      showToast("success", "Пересдача успешно создана!")
       setExamenId(null)
       setModalCopyActive(false)
       onCopy()

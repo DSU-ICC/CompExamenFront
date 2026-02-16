@@ -1,4 +1,3 @@
-import ExamenItemUko from './ExamensItemUko'
 import { isStartExamen } from '../../utils/date'
 import ExamensItemArchiveUko from './ExamensItemArchiveUko'
 

@@ -54,7 +54,7 @@ const CreateTicketsForUko = () => {
   const [createExamen, isExamenLoading] = useFetching(async (examData) => {
     const response = await ExamenService.createExamen(examData)
     if (response.status == 200) {
-      alert("Экзамен успешно создан!")
+      showToast("success", "Экзамен успешно создан!")
       redirect(`/uko/${employeeId}`)
     }
   })

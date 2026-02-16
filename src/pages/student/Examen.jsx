@@ -131,7 +131,7 @@ const Examen = () => {
         <div className='container container--smaller'>
           <div className="examen__head">
             <h1 className="examen__title title">{examenData.discipline}</h1>
-            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!", ""); saveAnswers(examenAnswers, true) }} seconds={timeToEnd} />}
+            {!isAnswersLoading && <Countdown onTimeOver={() => { showToast("info", "Время экзамена истекло!"); saveAnswers(examenAnswers, true) }} seconds={timeToEnd} />}
           </div>
           <div className="examen__questions questions">
             {!isAnswersLoading && <QuestionList examenAnswers={examenAnswers} questions={examenData.examTicket.questions} />}

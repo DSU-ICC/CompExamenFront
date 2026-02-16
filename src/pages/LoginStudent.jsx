@@ -201,7 +201,7 @@ const LoginStudent = () => {
     };
 
     const login = (data) => {
-        isAccessAllowed() ? loginStudent(data.studentId, data.nzachkn) : showToast("warn", "Вход с данного устройства запрещен!", "")
+        isAccessAllowed() ? loginStudent(data.studentId, data.nzachkn) : showToast("warn", "Вход с данного устройства запрещен!")
     }
 
     return (

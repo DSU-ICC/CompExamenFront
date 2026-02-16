@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Popup from '../../components/ui/Popup'
 import Button from '../../components/ui/Button'
 import { useFetching } from '../../hooks/useFetching'
@@ -11,9 +11,12 @@ import Input from '../../components/ui/Input'
 import AnswerBlankService from '../../api/AnswerBlankService'
 import { components } from "react-select"
 import DsuService from '../../api/DsuService'
+import { AppContext } from '../../context'
 
 
 const AdminPage = () => {
+  const { showToast } = useContext(AppContext)
+
   const [filials, setFilials] = useState([])
   const [examensForSelect, setExamensForSelect] = useState([])
   const [filteredExamensForSelect, setFilteredExamensForSelect] = useState([])
@@ -86,7 +89,7 @@ const AdminPage = () => {
   const [resetExamenForStudent, isResetStudentLoading, resetStudentErr] = useFetching(async (answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes) => {
     const response = await AnswerBlankService.resetExamenForStudent(answerBlankId, isRemoveAnswerBlank, additionalTimeInMinutes)
     if (response.status == 200) {
-      alert("Сброс экзамена студенту успешно завершен")
+      showToast("success", "Сброс экзамена студенту успешно завершен!")
       setModalResetStudentConfirmActive(false)
       setExamenId(null)
     }
@@ -95,7 +98,7 @@ const AdminPage = () => {
   const [resetExamenForTeacher, isResetTeacherLoading, resetTeacherErr] = useFetching(async (examenId) => {
     const response = await ExamenService.resetExamenForTeacher(examenId)
     if (response.status == 200) {
-      alert("Сброс экзамена преподавателю успешно завершен")
+      showToast("success", "Сброс экзамена преподавателю успешно завершен!")
       setModalResetTeacherConfirmActive(false)
       setExamenId(null)
     }

@@ -64,7 +64,7 @@ const TicketsForm = ({ defaultValues, backLink, onSubmit, isLoading }) => {
     }
 
     const onErrors = () => {
-        showToast("error", "Некоторые поля вопросов не заполнены")
+        showToast("error", "Некоторые поля вопросов не заполнены!")
     }
 
     return (

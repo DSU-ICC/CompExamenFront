@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { formatDate } from '../../utils/date'
 
 const ExamenTeacher = () => {
-    const { employeeId } = useContext(AppContext)
+    const { showToast, employeeId } = useContext(AppContext)
     const [modalActive, setModalActive] = useState(false)
     const [students, setStudents] = useState([])
     const { id } = useParams()
@@ -35,12 +35,28 @@ const ExamenTeacher = () => {
         const response = await ExamenService.endExamenForEmployee(examenId)
 
         if (response.status == 200) {
-            alert("Экзамен успешно завершен")
+            showToast("success", "Экзамен успешно завершен!")
             redirect(`/teacher/examen-results/${id}`, {
                 state: { course: course, group: group, deptName: deptName, examenName: examenName  }
             })
         }
     })
+
+    const handleEndExamenForTeacher = (id) => {
+        for (let student of students.filter(s => s.answerBlank != null)) {
+            if (!student.answerBlank.endExamenDateTime) {
+                showToast("error", "Не все студенты завершили экзамен!")
+                return
+            }
+
+            if (!student.answerBlank.totalScore) {
+                showToast("error", "Не всем студентам были выставлены баллы!")
+                return
+            }        
+        }
+
+        endExamenForTeacher(id)
+    }
 
     return (
         <section className='examen-teacher'>
@@ -65,7 +81,7 @@ const ExamenTeacher = () => {
                     <Popup active={modalActive} setActive={setModalActive}>
                         <h2 className="popup__title title">Вы действительно хотите завершить экзамен?</h2>
                         <div className="confirm-buttons">
-                            <Button onClick={() => endExamenForTeacher(id)} className={`confirm-button confirm-button--yes${isEndLoading ? ' loading' : ''}`}><span>Да</span></Button>
+                            <Button onClick={() => handleEndExamenForTeacher(id)} className={`confirm-button confirm-button--yes${isEndLoading ? ' loading' : ''}`}><span>Да</span></Button>
                             <Button className="confirm-button confirm-button--no" onClick={() => setModalActive(false)}>Нет</Button>
                         </div>
                     </Popup>

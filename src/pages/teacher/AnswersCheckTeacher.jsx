@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import Popup from '../../components/ui/Popup'
 import Button from '../../components/ui/Button'
 import AnswerList from '../../components/teacher/AnswerList'
@@ -6,6 +6,7 @@ import Input from '../../components/ui/Input'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import AnswerBlankService from '../../api/AnswerBlankService'
+import { AppContext } from '../../context'
 
 const getStudentExamenStatusClass = (student) => {
   if (student.answerBlank?.totalScore) {
@@ -32,6 +33,8 @@ const getStudentNumber = (student) => {
 }
 
 const AnswersCheckTeacher = () => {
+  const { showToast } = useContext(AppContext)
+
   const [totalScore, setTotalScore] = useState(null)
   const [modalActive, setModalActive] = useState(false)
   const data = useLocation()
@@ -42,7 +45,7 @@ const AnswersCheckTeacher = () => {
     const response = await AnswerBlankService.updateAnswerBlank(answerBlank)
 
     if (response.status == 200) {
-      alert("Баллы успешно выставлены!")
+      showToast("success", "Баллы успешно выставлены!")
       redirect(-1)
     }
   })
@@ -67,7 +70,7 @@ const AnswersCheckTeacher = () => {
     if (totalScore != null) {
       setModalActive(true)
     } else {
-      alert("Выставите баллы за экзамен!")
+      showToast("error", "Выставите баллы за экзамен!")
     }
   }
 

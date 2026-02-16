@@ -5,9 +5,11 @@ import { useLocation, Link } from 'react-router-dom'
 import { useFetching } from '../../hooks/useFetching'
 import TicketService from '../../api/TicketService'
 import QuestionService from '../../api/QuestionService'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { AppContext } from '../../context'
 
 const EditTicketsForm = ({ backLink, onSubmit, isLoading, examData }) => {
+  const { showToast } = useContext(AppContext)
   const [tickets, setTickets] = useState(examData.tickets)
   const [questionIdLoading, setQuestionLoadingId] = useState(null)
   const [ticketIdLoading, setTicketIdLoading] = useState(null)
@@ -16,7 +18,7 @@ const EditTicketsForm = ({ backLink, onSubmit, isLoading, examData }) => {
     const response = await QuestionService.deleteQuestion(id)
 
     if (response.status == 200) {
-      alert("Вопрос успешно удален!")
+      showToast("success", "Вопрос успешно удален!")
       setQuestionLoadingId(null)
     }
   })
@@ -25,7 +27,7 @@ const EditTicketsForm = ({ backLink, onSubmit, isLoading, examData }) => {
     const response = await TicketService.deleteTicket(id)
 
     if (response.status == 200) {
-      alert("Билет успешно удален!")
+      showToast("success", "Билет успешно удален!")
       setTicketIdLoading(null)
     }
   })
@@ -36,7 +38,7 @@ const EditTicketsForm = ({ backLink, onSubmit, isLoading, examData }) => {
     if (isFormValid) {
       onSubmit(tickets)
     } else {
-      alert("Некоторые поля вопросов не заполнены!")
+      showToast("error", "Некоторые поля вопросов не заполнены!")
     }
   }
 
