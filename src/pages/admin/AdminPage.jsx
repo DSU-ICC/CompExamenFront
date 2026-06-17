@@ -18,6 +18,7 @@ const AdminPage = () => {
   const { showToast } = useContext(AppContext)
 
   const [filials, setFilials] = useState([])
+  const [edukinds, setEdukinds] = useState([])
   const [examensForSelect, setExamensForSelect] = useState([])
   const [filteredExamensForSelect, setFilteredExamensForSelect] = useState([])
   const [modalResetForStudentActive, setModalResetForStudentActive] = useState(false)
@@ -38,6 +39,19 @@ const AdminPage = () => {
     } 
   })
 
+  const [getEdukinds, isEdukindsLoading, edukindError] = useFetching(async () => {
+    const response = await DsuService.getEdukinds()
+    const dataArr = []
+    response.data.forEach(dataItem => {
+      dataArr.push({
+        value: dataItem.edukindId,
+        label: dataItem.edukind
+      })
+    })
+
+    setEdukinds(dataArr)
+  })
+
   const [getExamens, isExamensLoading] = useFetching(async () => {
     const response = await ExamenService.getExamens()
     if (response.status == 200) {
@@ -46,12 +60,15 @@ const AdminPage = () => {
         .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
         .forEach(dataItem => {
           const filialName = filials?.find(x => x.value == dataItem.filialId)?.label
+          const edukindName = edukinds?.find(x => x.value == dataItem.edukindId)?.label
+
           dataArr.push({
             value: dataItem.id,
             label: dataItem.discipline,
             filialId: dataItem.filialId,
             examDate: dataItem.examDate,
-            title: `Филиал - ${filialName}\r\nДата проведения: ${formatDate(new Date(dataItem.examDate))}\r\nКурс: ${dataItem.course}\r\nГруппа: ${dataItem.nGroup}`
+            edukindId: dataItem.edukindId,
+            title: `Филиал - ${filialName}\r\nДата проведения: ${formatDate(new Date(dataItem.examDate))}\r\nКурс: ${dataItem.course}\r\nГруппа: ${dataItem.nGroup}\r\nФорма обучения: ${edukindName}`
           })
       })
       setExamensForSelect(dataArr)
@@ -61,6 +78,7 @@ const AdminPage = () => {
 
   useEffect(() => {
     getFilials()
+    getEdukinds()
   }, [])
 
   useEffect(() => {
@@ -146,41 +164,45 @@ const AdminPage = () => {
   };
 
   const filterExamensForReset = () => {
-    const { filialId, examDate } = getResetExamenForStudentData()
+    const { filialId, examDate, edukindId } = getResetExamenForStudentData()
+    let filteredExamens = examensForSelect
+
     if (filialId) {
-      setFilteredExamensForSelect(prev => prev.filter(x => x.filialId == filialId))
-    } else {
-      setFilteredExamensForSelect(examensForSelect)
+      filteredExamens = filteredExamens.filter(x => x.filialId == filialId)
     }
 
     if (examDate) {
-      setFilteredExamensForSelect(prev => 
-        prev
-          .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
-          .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
-      )
-    } else {
-      setFilteredExamensForSelect(examensForSelect)
+      filteredExamens = filteredExamens
+        .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
+        .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
     }
+
+    if (edukindId) {
+      filteredExamens = filteredExamens.filter(x => x.edukindId == edukindId)
+    }
+
+    setFilteredExamensForSelect(filteredExamens)
   }
 
   const filterExamensForResetTeacher = () => {
-    const { filialId, examDate } = getResetExamenForTeacherData()
+    const { filialId, examDate, edukindId } = getResetExamenForTeacherData()
+    let filteredExamens = examensForSelect
+
     if (filialId) {
-      setFilteredExamensForSelect(prev => prev.filter(x => x.filialId == filialId))
-    } else {
-      setFilteredExamensForSelect(examensForSelect)
+      filteredExamens = filteredExamens.filter(x => x.filialId == filialId)
     }
 
     if (examDate) {
-      setFilteredExamensForSelect(prev => 
-        prev
-          .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
-          .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
-      )
-    } else {
-      setFilteredExamensForSelect(examensForSelect)
+      filteredExamens = filteredExamens
+        .filter(x => new Date(x.examDate).toLocaleDateString() == examDate.toLocaleDateString())
+        .sort((a, b) => new Date(a.examDate) - new Date(b.examDate))
     }
+
+    if (edukindId) {
+      filteredExamens = filteredExamens.filter(x => x.edukindId == edukindId)
+    }
+
+    setFilteredExamensForSelect(filteredExamens)
   }
 
   const onCloseResetExamenForStudent = () => {
@@ -239,6 +261,26 @@ const AdminPage = () => {
                     value={value}
                     onChange={(newValue) => { onChange(newValue); filterExamensForReset() }}
                     showTimeSelect={false}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Форма обучения</span>
+            <Controller
+              control={controlResetExamenForStudent}
+              name='edukindId'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    value={value ? edukinds?.find(x => x.value == value) : null}
+                    onChange={(newValue) => { onChange(newValue?.value); filterExamensForReset() }}
+                    placeholder='Выберите форму обучения'
+                    options={edukinds}
+                    isLoading={isEdukindsLoading}
+                    isDisabled={isEdukindsLoading}
                     isClearable={true}
                   />
                 </div>
@@ -370,6 +412,26 @@ const AdminPage = () => {
                     value={value}
                     onChange={(newValue) => { onChange(newValue); filterExamensForResetTeacher() }}
                     showTimeSelect={false}
+                    isClearable={true}
+                  />
+                </div>
+              )}
+            />
+          </label>
+          <label className='form__label' onClick={(evt) => evt.preventDefault()}>
+            <span className='form__text'>Форма обучения</span>
+            <Controller
+              control={controlResetExamen}
+              name='edukindId'
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <div className={error ? 'error' : ''}>
+                  <Select
+                    value={value ? edukinds?.find(x => x.value == value) : null}
+                    onChange={(newValue) => { onChange(newValue?.value); filterExamensForResetTeacher() }}
+                    placeholder='Выберите форму обучения'
+                    options={edukinds}
+                    isLoading={isEdukindsLoading}
+                    isDisabled={isEdukindsLoading}
                     isClearable={true}
                   />
                 </div>

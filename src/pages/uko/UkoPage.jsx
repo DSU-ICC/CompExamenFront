@@ -18,6 +18,7 @@ const UkoPage = () => {
 
   const filialSelectForFilterRef = useRef(null)
   const facultySelectForFilterRef = useRef(null)
+  const edukindSelectForFilterRef = useRef(null)
 
   const [getExamensByEmployeeId, isExamensLoading] = useFetching(async (userId) => {
     const response = await ExamenService.getExamensByEmployeeId(userId)
@@ -60,9 +61,24 @@ const UkoPage = () => {
     setFaculties(dataArr)
   })
 
+  const [edukinds, setEdukinds] = useState([])
+  const [getEdukinds, isEdukindsLoading, edukindError] = useFetching(async () => {
+    const response = await DsuService.getEdukinds()
+    const dataArr = []
+    response.data.forEach(dataItem => {
+      dataArr.push({
+        value: dataItem.edukindId,
+        label: dataItem.edukind
+      })
+    })
+
+    setEdukinds(dataArr)
+  })
+
   useEffect(() => {
     getFilials()
     getFaculties()
+    getEdukinds()
 }, [])
 
   const { control: controlFilter, handleSubmit: handleSubmitFilter, reset: resetFilterForm} = useForm({
@@ -83,6 +99,10 @@ const UkoPage = () => {
       filteredExamens = filteredExamens.filter(e => e.department.facId == data.facultyId)
     }
 
+    if (data.edukindId) {
+      filteredExamens = filteredExamens.filter(e => e.edukind && e.edukind.edukindId == data.edukindId)
+    }
+
     filteredExamens = filteredExamens.filter(e => (new Date(e.examDate) >= data.startDate) && (new Date(e.examDate) <= new Date(new Date(data.endDate).setDate(new Date(data.endDate).getDate() + 1))))
     setExamensWithFilter(filteredExamens)
   }
@@ -93,6 +113,7 @@ const UkoPage = () => {
     evt.preventDefault()
     filialSelectForFilterRef.current.clearValue()
     facultySelectForFilterRef.current.clearValue()
+    edukindSelectForFilterRef.current.clearValue()
     setExamensWithFilter(examens)
   }
 
@@ -144,6 +165,25 @@ const UkoPage = () => {
                       options={faculties}
                       isLoading={isFacultiesLoading}
                       isDisabled={isFacultiesLoading}
+                    />
+                  </div>
+                )}
+              />
+            </label>
+            <label className='form__label'>
+              <span className='form__text'>Форма обучения</span>
+              <Controller
+                control={controlFilter}
+                name='edukindId'
+                render={({ field: { onChange }, fieldState: { error } }) => (
+                  <div className={error ? 'error' : ''}>
+                    <Select
+                      ref={edukindSelectForFilterRef}
+                      onChange={newValue => onChange(newValue?.value)}
+                      placeholder='Выберите форму обучения'
+                      options={edukinds}
+                      isLoading={isEdukindsLoading}
+                      isDisabled={isEdukindsLoading}
                     />
                   </div>
                 )}
