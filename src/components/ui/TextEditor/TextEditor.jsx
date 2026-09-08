@@ -23,12 +23,11 @@ import {
     ImageResizeHandles,
     ImageStyle,
     ImageCaption,
-    Base64UploadAdapter,
     CodeBlock,
     SourceEditing,
     FindAndReplace
 } from 'ckeditor5';
-import MathType from '@wiris/mathtype-ckeditor5/dist/index.js';
+//import MathType from '@wiris/mathtype-ckeditor5/dist/index.js';
 
 import DisableImagePaste from './customPlugins/DisableImagePaste';
 
@@ -55,7 +54,7 @@ const TextEditor = ({ value, onChange, pasteFromClipboard = true, canUploadImage
                     ListProperties,
                     Indent,
                     IndentBlock,
-                    MathType,
+                   // MathType,
                     BlockQuote,
                     Alignment,
                     Image,
@@ -109,11 +108,15 @@ const TextEditor = ({ value, onChange, pasteFromClipboard = true, canUploadImage
                         reversed: true
                     }
                 },
-                mathTypeParameters: {
-                    editorParameters: {
-                        fontSize: '24px'
-                    }
-                },
+                // mathTypeParameters: {
+                    //serviceProviderProperties: {
+                       // URI: API_URL + '/Wiris/configurationjs',
+                       // server: 'java'
+                    //},
+                   // editorParameters: {
+                     //   fontSize: '24px'
+                  //  }
+               // },
                 translations: [ruTranslations]
             }}
             onReady={(editor) => {
